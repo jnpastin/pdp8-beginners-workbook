@@ -24,7 +24,7 @@
 **Exercises**
 1. ✅ Absolute‑value subroutine 
 2. ✅ Compare two values (−1 / 0 / 1) 
-3. Nested subroutines and state‑saving bug fix 
+3. ✅ Nested subroutines and state‑saving bug fix 
 
 ---
 
@@ -36,9 +36,9 @@
 - Use rotates for bit manipulation
 
 **Exercises**
-1. Count bits set in a word 
-2. Multiply by 10 without EAE 
-3. Implement an arithmetic right shift 
+1. ✅ Count bits set in a word 
+2. ✅ Multiply by 10 without EAE 
+3. ✅ Implement an arithmetic right shift 
 
 ---
 
@@ -111,12 +111,9 @@
 
 ## Progress Tracking
 
-_Update as work progresses._
-
-Example:
-- ✅ Phases 1–3 complete 
-- 🔄 Phase 4 in progress 
-- ⏳ Phase 6 (I/O) next 
+- ✅ Phase 1 complete (exercises 1–3)
+- ✅ Phase 2 complete (exercises 1–3, code reviewed and all standards met)
+- ⏳ Phase 3 next
 
 ---
 
@@ -129,7 +126,7 @@ When reviewing any exercise solution, evaluate on all of the following axes:
 - **Comments** — Labels and inline comments should describe intent precisely, not just restate the mnemonic.
 - **Conventions** — Follows period PDP-8 idioms: `CLA CLL` for clear, `CIA` for negation, `ISZ`-based loop counters, `HLT` before OS/8 exit, `CIF CDF` discipline.
 - **Historical accuracy** — Code should reflect how real PDP-8 software was written in the era. Avoid anachronistic patterns.
-- **OS/8 safety** — Programs that run under OS/8 must exit via `CIF CDF 00` + `JMP I (7600)`. Field must be restored before the jump.
+- **OS/8 safety** — Programs that run under OS/8 must exit via `CIF CDF 00` + `JMP I (7600)`. Field must be restored before the jump during and after the memory management module (Phase 5)
 - **Resource use** — Are auto-index registers, page 0, and literals used appropriately? No unnecessary waste of scarce page-0 locations.
 - **Runaway risk** — Does execution ever fall into data words? All paths must terminate cleanly.
 

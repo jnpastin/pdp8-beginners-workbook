@@ -65,7 +65,6 @@ Undecorated numbers in comments are assumed octal. Do not use `(DEC)` or `(D)` â
 
 - Labels and symbols are **uppercase**, up to 6 characters (PAL8 limit).
 - Names should be meaningful: `COUNTR` (6 chars) over `CTR`; `SUMLP` over `LP2`.
-- Auto-index register names: `AIXnn` where `nn` is the octal address (e.g., `AIX10` for location 0010).
 - Constants that are negative: annotate with octal and decimal equivalents in a comment.
   ```pal8
   MINUSN, 7766    /-10. COUNTS TO 0 VIA ISZ
