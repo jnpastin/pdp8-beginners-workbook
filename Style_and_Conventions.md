@@ -174,6 +174,7 @@ Programs running under OS/8 must exit cleanly:
 
 - `HLT` before the exit gives an opportunity to inspect AC, Link, and memory from the front panel.
 - `CIF CDF 00` must come before the `JMP I (7600)`, not after.
+- **Phase dependency:** `CIF CDF 00` is required only once the workbook introduces extended memory and field management (Phase 5+). Phases 1–4 exercises run entirely in field 0 and never alter IF or DF, so the obligation does not apply — `HLT` / `JMP I (7600)` is the correct and complete exit for those phases. Do not flag the absence of `CIF CDF` in Phase 1–4 reviews.
 - Never fall off the end of code into data words — always terminate every code path explicitly.
 - `.EXIT` is **not** supported by OS/8 PAL8. The correct idiom is `JMP I (7600` — the `(` allocates a literal containing `7600` in the page pool and generates an indirect jump through it. This is equivalent to what a cross-assembler `.EXIT` directive would emit.
 
@@ -192,10 +193,10 @@ Programs running under OS/8 must exit cleanly:
 
 ## AC, Link, MQ, and DF State
 
-- AC, Link, and MQ are considered **destroyed** by any subroutine unless explicitly documented as preserved.
+- AC, Link, and MQ are considered **destroyed** by any subroutine unless explicitly documented as preserved. A subroutine header need only document AC/Link/MQ when they are **preserved on exit** — silence means destroyed.
 - DF (data field) is a hidden global register. Any subroutine that changes DF **must save and restore it** or document the change explicitly.
 - Always initialize AC and Link (`CLA CLL`) at program entry.
-- Document the AC/Link/DF state on entry and exit for every subroutine.
+- Document entry conditions (what the caller must supply) and exit conditions (what is returned or modified) for every subroutine. Omit AC/Link from the exit block unless they carry a meaningful value back to the caller.
 - Use `RDF` (6214) to read the current data field into AC bits [5:3] before changing it:
   ```pal8
   RDF              /READ CURRENT DF INTO AC BITS 5-3
