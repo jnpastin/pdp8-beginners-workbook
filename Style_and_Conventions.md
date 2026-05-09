@@ -15,8 +15,8 @@ FIELD n          / field declaration (if needed)
 / init section
 / main code
 / exit
+*NNNN            / data value origin
 / constants and variables
-*0010            / auto-index register declarations (if used)
 $                / end of source
 ```
 
@@ -38,7 +38,7 @@ $                / end of source
 ## Formatting and Spacing
 
 - **Tab size is 8 columns** — matching the historical Teletype/DECwriter hardware tab stop. Source files use real tab characters, not spaces. Set `editor.tabSize: 8` and `editor.insertSpaces: false`.
-- **Four fixed column fields:** label (col 0), opcode (col 8), operand (col 16), comment (col 56). Every line must land in the same columns — inconsistent indentation is a style error.
+- **Four fixed column fields:** label (col 0), opcode (col 8), operand (col 16), comment (col 24). Every line must land in the same columns — inconsistent indentation is a style error.
 - **Labels** are at column 0, followed immediately by a comma: `LOOP,`. The opcode begins at the next tab stop (col 8).
 - **Section header comments** appear on their own line, directly above the first instruction they introduce — no blank line between the header and the code:
   ```pal8
@@ -135,7 +135,7 @@ Each page is 128 words (octal `0200`–`0377` on page 1, etc.):
 
 ### Data Placement Rule
 
-**Never place data words before the first instruction.** The CPU executes memory sequentially from the origin; a data word at `*0200` will be executed as an instruction. Always structure each page:
+**Data must never appear before instructions on any executed page.** The CPU fetches and executes memory sequentially from the page origin; a data word in that path will be interpreted as an instruction. Always structure each page: instructions first, followed by constants and variables after the last exit instruction.
 
 ```
 *0200           / code origin
@@ -155,7 +155,7 @@ SUM,    0
 - **Never** access cross-field memory without explicit `CDF`/`CIF` management.
 - Page 0 applies per-field: page 0 of field 1 is different from page 0 of field 0.
 - Prefer locating data variables on the **same page as the code** that uses them, to allow direct (not indirect) addressing.
-- Auto-index registers live at **0010–0017** (page 0 of the current field). Declare them with `*0010` at the end of source.
+- Auto-index registers live at **0010–0017** (page 0 of the current field). Declare them with `*0010` after all instruction code sections. Although page 0 is not sequentially executed from a `*0200` origin, keeping all data declarations after instructions is the consistent source organization rule.
 
 ### Literal Pool Caution
 PAL8 places auto-generated literals at the **high end of the current page** (near 0377/0777). Avoid placing data in that area, and be aware of page overflow if many literals are used.

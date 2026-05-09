@@ -38,7 +38,7 @@ The test inputs are:
   - **Signed addition overflows** when: the two inputs have the *same* sign, AND the output sign differs from the input sign. (Two positives produced a negative, or two negatives produced a positive.)
   - **Signed subtraction overflows** when: the two inputs have *different* signs, AND the output sign differs from the sign of IN1. (Subtracting a negative from a positive produced a negative, or vice versa.)
 
-  The first condition (same/different input signs) is what `SMSIGN` captures. The second condition (sign of the result disagrees with what it should be) is `SIGN1 ⊕ SIGNOUT`. Both must be true together — one without the other is a normal result.
+  The first condition (same/different input signs) is what `SMSIGN` captures. The second condition (sign of the result disagrees with what it should be) is `SIGN1 xor SIGNOUT`. Both must be true together — one without the other is a normal result.
 
 ### Key Learning Points
 
@@ -46,3 +46,45 @@ The test inputs are:
 - Unsigned subtraction via CIA + TAD inverts the carry/borrow sense. Always apply `CML` when converting the CIA-addition carry output into a conventional borrow flag.
 - Signed overflow is a function of the input signs and the output sign — not of Link. Link carries the unsigned carry; overflow is a separate computation using the sign bits.
 - Subroutines that compute supporting values (like sign flags) are best placed between the unsigned and signed sections they feed, so state is available when needed without re-entry or re-computation.
+
+---
+
+## Exercise 2 — Variable-Length Accumulation with Overflow Detection
+
+### What It Does
+
+Performs unsigned addition on two arrays of 12-bit words whose length is determined at runtime from a pseudo-random value derived from the switch register. The arrays can be 1–13 words long. The result is stored in a separate output block with one extra word reserved for the final carry out.
+
+The program has three phases:
+
+1. **PRNG** — reads the switch register (`OSR`) as entropy, then runs 8 iterations of a mixing loop (rotate, complement, XOR-like TAD, constant injection) to produce a variable value in `RANDOM`.
+2. **GETLEN** — counts the number of set bits in `RANDOM` (1–12), adds the mandatory minimum of 1, and negates the result into `VALLEN` for use as a down-counter.
+3. **ADDLP** — adds corresponding words from INPUT1 and INPUT2 via auto-index registers, propagating carry through Link with `RAL` at the top of each iteration. After the loop exits, the final carry out is stored as one extra word in the result block.
+
+Test inputs are 13-word arrays at `0400` (INPUT1) and `0420` (INPUT2). The result block at `0440` is 14 words (13 data + 1 carry-out slot). Auto-index pointers `IN1POS`, `IN2POS`, and `RESPOS` are initialized to one location before each respective array, pre-increment semantics apply on each `TAD I` / `DCA I` access.
+
+### Implementation Rationale
+
+**PRNG mixing.** `OSR` without a preceding `CLA CLL` is deliberate — AC and Link at program entry are additional entropy. Eight iterations of rotate-complement-TAD-rotate-IAC-constant produce a value that changes substantially with small switch register differences. The constant `5235` (octal) has bit 11 set and an irregular bit pattern, which breaks short cycles in the mixing feedback.
+
+**Bit counting for length.** `WRDLP` counts down from −12. Each iteration shifts one bit of `RANDOM` into Link via `RAL` and conditionally increments `WRDCNT` only when that bit was 1. `WRDCNT` starts at 1, guaranteeing a minimum length of 1 even if `RANDOM` holds 0. The result is negated via `CIA` and stored in `VALLEN` so that `ISZ VALLEN` counts up to zero and exits the addition loop.
+
+**Carry propagation.** The addition loop starts with `CLA CLL` before the first iteration only. `CLL` ensures Link is 0 so the first `RAL` inside the loop rotates in a zero carry-in, leaving the first word addition unaffected. On subsequent iterations, `RAL` rotates the Link carry-out from the previous word into bit 0 of AC before loading the next word pair. `DCA I RESPOS` stores the word result and clears AC, but Link is unaffected — it retains the carry from the `TAD I IN2POS`. This is the N-word carry-chain idiom: one `CLA CLL` before the loop, then `RAL` / `TAD` / `TAD` / `DCA` per word.
+
+**Overflow storage.** When `ISZ VALLEN` skips (counter reaches 0), the link from the last word addition is still live. `RAL` rotates it into AC bit 0, and `DCA I RESPOS` stores the carry out at the next sequential address in the result block. No separate overflow flag variable is needed.
+
+### Non-Intuitive Points for Beginners
+
+- **`OSR` without `CLA` is intentional.** The program entry convention says `CLA CLL` at startup, but here both AC and Link from the previous machine state are incorporated as entropy. This deliberate deviation is explained in the goal comment block at the top of the file.
+- **`DCA` does not touch Link.** Each `DCA I RESPOS` inside the addition loop clears AC to zero but leaves Link intact. The `RAL` at the top of the next iteration then rotates that carry — and only that carry — into bit 0 of AC. It is critical that no instruction between `DCA I RESPOS` and the next `RAL` modifies Link.
+- **`ISZ VALLEN` can never cause an unwanted skip.** `VALLEN` is loaded with a negative count (−1 to −13). `ISZ` increments by 1 each iteration and skips when the value passes through 0. The loop body runs exactly |VALLEN| times — matching the array length — before the skip exits the loop.
+- **Auto-index pointers are TABLE−1.** `IN1POS = 0377`, `IN2POS = 0417`, `RESPOS = 0437`. The first `TAD I IN1POS` pre-increments to `0400`, `TAD I IN2POS` to `0420`, and `DCA I RESPOS` to `0440` — the first elements of each array. There is no pointer-reset between iterations because each traversal is a single forward pass.
+- **No links generated.** `JMP I (7600)` uses a parenthesized literal, but PAL8 allocates it above the data area at `0377` (visible in the listing). `LINKS GENERATED: 0` at the listing footer confirms no page overflow risk.
+
+### Key Learning Points
+
+- Variable-length arithmetic requires a runtime length value that is known before the loop starts and can be used as a down-counter. Negate the count with `CIA` and drive the loop with `ISZ`.
+- The carry chain across N words requires exactly one `CLA CLL` before the first word, then `RAL` / `TAD` / `TAD` / `DCA` repeated N times. Do not re-clear Link inside the loop.
+- The final carry out of an N-word addition is in Link after the last `DCA`. Capture it with `RAL` and store it as an additional result word.
+- Auto-index registers initialized to TABLE−1 give correct pre-increment behavior with no special-case handling for the first access.
+- A pseudo-random loop length drawn from switch register state is a practical way to exercise variable-length code paths during interactive debugging without needing a separate test harness.
