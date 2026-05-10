@@ -50,8 +50,8 @@
 - Variable‑length arithmetic
 
 **Exercises**
-1. 24‑bit addition and subtraction 
-2. Variable‑length accumulation with overflow detection 
+1. ✅ 24‑bit addition and subtraction 
+2. ✅ Variable‑length accumulation with overflow detection 
 3. Multi‑word comparison routine 
 
 ---
@@ -113,7 +113,8 @@
 
 - ✅ Phase 1 complete (exercises 1–3)
 - ✅ Phase 2 complete (exercises 1–3, code reviewed and all standards met)
-- ⏳ Phase 3 next
+- ✅ Phase 3 complete (exercises 1–3)
+- ⏳ Phase 4 in progress (exercises 1–2 complete, exercise 3 remaining)
 
 ---
 
