@@ -18,7 +18,7 @@
 00201  1326          TAD     IN1LOW
 00202  1331          TAD     IN2LOW
 00203  3335          DCA     ADDLOW  /LEAVES AC=0
-00204  7004          RAL             /MOVE LINK TO BIT 1 FOR CARRY
+00204  7004          RAL             /MOVE LINK TO BIT 0 FOR CARRY
 00205  1327          TAD     IN1HI
 00206  1332          TAD     IN2HI
 00207  3336          DCA     ADDHI
@@ -47,14 +47,14 @@
 00231  1326          TAD     IN1LOW  /LOW WORD IS UNSIGNED
 00232  1331          TAD     IN2LOW
 00233  3343          DCA     SADDLO
-00234  7004          RAL             /ROTATE CARRY INTO BIT 1
+00234  7004          RAL             /ROTATE CARRY INTO BIT 0
 00235  1327          TAD     IN1HI
 00236  1332          TAD     IN2HI
 00237  3344          DCA     SADDHI
 00240  7100          CLL
 00241  1344          TAD     SADDHI  /RELOAD TO CHECK SIGN FOR OVERFLOW
 00242  0376          AND     (4000)
-00243  7006          RTL             /MOVE SIGN TO BIT 1
+00243  7006          RTL             /MOVE SIGN TO BIT 0
 00244  1330          TAD     SIGN1   /AC=1-> SIGNS DIFFER
 00245  0375          AND     (0001)  /POSSIBLE INCOMING AC VALUES= 0,1,2
 
@@ -82,7 +82,7 @@ IGN)
 00271  1334          TAD     SMSIGN
 00272  7010          RAR             /MOVE TO LINK
 00273  7020          CML             /INVERT
-00274  7004          RAL             /MOVE BACK TO BIT 1
+00274  7004          RAL             /MOVE BACK TO BIT 0
 00275  1350          TAD     SSUBOF  /RELOAD SIGN1 XOR OUT SIGN
 00276  0375           AND     (0001)  /BORROW = !SMSIGN & (SIGN1 XOR OUT
  SIGN)
@@ -93,8 +93,8 @@ IGN)
 
              /GETSGN
              /GET THE SIGN FOR EACH INPUT AND CHECK IF THEY DIFFER
-             /ENTRY: IN1HIGH
-             /       IN2HIGH
+             /ENTRY: IN1HI
+             /       IN2HI
              /EXIT:  SIGN1           /0=POSITIVE, 1=NEGATIVE
              /       SIGN2
              /       SMSIGN          /0=DIFFER, 1=MATCH
@@ -102,7 +102,7 @@ IGN)
 00303  7300          CLA CLL
 00304  1327          TAD     IN1HI
 00305  0376          AND     (4000)  /ISOLATE SIGN TO BIT 11
-00306  7006          RTL             /MOVE TO BIT 1
+00306  7006          RTL             /MOVE TO BIT 0
 00307  3330          DCA     SIGN1
 00310  1327          TAD     IN1HI
 00311  0376          AND     (4000)
@@ -115,7 +115,7 @@ IGN)
 00320  7100          CLL             /CLEAR LINK IF THEY DIFFER
 00321  7450          SNA
 00322  7120          STL             /SET LINK IF THEY MATCH
-00323  7004          RAL             /MOVE LINK TO BIT 1
+00323  7004          RAL             /MOVE LINK TO BIT 0
 00324  3334          DCA     SMSIGN
 00325  5702          JMP I   GETSGN
 
