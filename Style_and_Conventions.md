@@ -25,7 +25,7 @@ $                / end of source
 ```pal8
 /
 / PDP-8 WORKBOOK
-/ PHASE n
+/ CHAPTER n
 / EXERCISE n
 / PAL8 ASSEMBLY
 / YOUR NAME
@@ -174,7 +174,7 @@ Programs running under OS/8 must exit cleanly:
 
 - `HLT` before the exit gives an opportunity to inspect AC, Link, and memory from the front panel.
 - `CIF CDF 00` must come before the `JMP I (7600)`, not after.
-- **Phase dependency:** `CIF CDF 00` is required only once the workbook introduces extended memory and field management (Phase 5+). Phases 1–4 exercises run entirely in field 0 and never alter IF or DF, so the obligation does not apply — `HLT` / `JMP I (7600)` is the correct and complete exit for those phases. Do not flag the absence of `CIF CDF` in Phase 1–4 reviews.
+- **Chapter dependency:** `CIF CDF 00` is required only once the workbook introduces extended memory and field management (Chapter 5+). Chapters 1–4 exercises run entirely in field 0 and never alter IF or DF, so the obligation does not apply — `HLT` / `JMP I (7600)` is the correct and complete exit for those chapters. Do not flag the absence of `CIF CDF` in Chapter 1–4 reviews.
 - Never fall off the end of code into data words — always terminate every code path explicitly.
 - `.EXIT` is **not** supported by OS/8 PAL8. The correct idiom is `JMP I (7600` — the `(` allocates a literal containing `7600` in the page pool and generates an indirect jump through it. This is equivalent to what a cross-assembler `.EXIT` directive would emit.
 
@@ -386,6 +386,80 @@ When reviewing a solution, check every axis:
 | Literal pool overflow | Too many `(expr)` literals on one page | Consolidate; use named constants in variable section |
 | Data executed as code | Data labels placed at page origin before first instruction | Always put code first, data after the exit instruction |
 | `.EXIT` not recognized | OS/8 PAL8 does not support the `.EXIT` directive | Use `JMP I (7600` instead |
+
+---
+
+## Chapter README Requirements
+
+Every chapter directory must contain a `README.md`. The file is the human-readable companion to the source files — it explains what was built and why, and records the non-obvious aspects that code alone cannot convey.
+
+### Top-Level Structure
+
+```markdown
+# Chapter N — Descriptive Subtitle
+
+## Goals
+
+- Goal 1
+- Goal 2
+- Goal 3
+
+---
+
+## Exercise 1 — Descriptive Title
+
+### What It Does
+### Implementation Rationale
+### Non-Intuitive Points for Beginners
+### Key Learning Points
+
+---
+
+## Exercise 2 — Descriptive Title
+...
+```
+
+Rules:
+- Chapter heading uses an em-dash (`—`), not a hyphen: `# Chapter 5 — OS/8 and Extended Memory`.
+- `## Goals` block is a bullet list of 3–4 learning objectives taken directly from the workbook plan (`WoorkBook.md`). Match the wording exactly.
+- A `---` horizontal rule separates the Goals block from the first exercise, and separates each exercise from the next.
+- All four exercise subsections (`What It Does`, `Implementation Rationale`, `Non-Intuitive Points for Beginners`, `Key Learning Points`) are **required** for every exercise. Do not omit any.
+
+### `### What It Does`
+
+- Plain English description of the program's observable behavior. One to three paragraphs.
+- Describe inputs, outputs, and what the program does at runtime — not how it does it.
+- Do not explain design decisions or algorithm choices here.
+- Include concrete values where they add clarity (e.g., specific test inputs, expected output values).
+
+### `### Implementation Rationale`
+
+- Explains the *why* behind major design decisions: algorithm choice, idiom selection, page layout, register discipline, subroutine structure.
+- Written as prose paragraphs. Use inline code formatting (backticks) for mnemonics and symbol names. Fenced code blocks are acceptable for short illustrative sequences.
+- Each significant design decision in the code should have a corresponding rationale paragraph. A reader should be able to reconstruct your reasoning without reading the source.
+- Document deliberate deviations from the standard idioms (e.g., `CLA CLL` omitted, `CLL` placed outside a loop) and explain why.
+
+### `### Non-Intuitive Points for Beginners`
+
+- Bullet list. Each item begins with a **bold phrase** that names the specific trap or misconception, followed by an explanation.
+- Focus on things that would surprise or mislead someone who understands the PDP-8 at a basic level but has not worked through this specific problem.
+- Do not restate facts from comments or rationale. This section is for traps — things a competent reader might still get wrong.
+- Typical count: 4–7 items. Fewer than 3 suggests the exercise is too simple to document; more than 8 suggests over-explanation of basics.
+
+### `### Key Learning Points`
+
+- Bullet list of generalized principles — not observations about this specific program.
+- Each point should be applicable beyond this exercise. A reader who has not seen the code should still find value in the point.
+- Typical count: 3–5 items. Do not pad.
+
+### Writing Conventions
+
+- Use title case for section headings.
+- Symbol names, mnemonics, and register names use inline code formatting: `CLA CLL`, `ISZ`, `COUNTR`, `LINK`.
+- Octal values use the same inline code format: `7766`, `4000`.
+- Decimal values in running text are written as plain numbers without annotation (English prose context makes the base clear). In code examples, use the trailing-period annotation matching PAL8 convention.
+- Do not use "we" or "you" — use declarative sentences: "The counter runs negative-to-zero because…" not "You can see that the counter…"
+- Do not begin sentences with "Note that" or "It is important to note".
 
 ---
 

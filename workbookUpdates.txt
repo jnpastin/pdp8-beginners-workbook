@@ -1,0 +1,317 @@
+Net-New Phases to Add to the Workbook
+
+Phase 6 — Program Execution Under OS/8
+Goal
+Understand how programs actually run under the OS.
+Topics
+
+Load address (0200)
+Entry/exit conventions
+(7600) monitor return vector
+Required state on exit (IF=0)
+
+Outcome
+Student can write a program that exits cleanly and predictably.
+
+Phase 7 — File Formats and Program Lifecycle
+Goal
+Understand how programs move from source → execution.
+Topics
+
+.BN (loader format)
+.SV (saved executable image)
+.EX (execution/chaining format)
+Workflow:
+PAL → LOAD → SAVE → RUN
+
+
+
+Outcome
+Student understands what each command in OS/8 is doing.
+
+Phase 8 — Loader and Multi‑File Programs
+Goal
+Introduce multi-module programs.
+Topics
+
+PAL with multiple files:
+PAL MAIN,UTIL
+
+
+Loader merging modules
+Symbol coordination
+“Library-like” patterns via inclusion
+
+Outcome
+Student can split a program across files and combine them.
+
+Phase 9 — Fields in Practice (IF vs DF)
+Goal
+Move from theory to real usage.
+Topics
+
+DF for data access (primary use)
+CIF only for control transfer
+Memory layout across fields
+Real-world usage patterns
+
+Outcome
+Student uses fields intentionally, not experimentally.
+
+Phase 10 — Indirect Addressing and Control Flow Pitfalls
+Goal
+Understand PDP‑8 “gotchas” that cause failures.
+Topics
+
+Direct vs indirect JMP/JMS
+Indirect uses IF (not DF)
+CIF timing (post-jump)
+Field transition hazards
+
+Outcome
+Student avoids subtle control-flow bugs.
+
+Phase 11 — USR Calls (System Interface)
+Goal
+Introduce OS/8 system services.
+Topics
+
+JMS I (7600)
+Parameter blocks (conceptual)
+IF/DF requirements for calls
+Role of OS/8 monitor
+
+Outcome
+Student understands how programs interact with the OS.
+
+Phase 12 — File I/O and Buffers
+Goal
+Make programs interact with stored data.
+Topics
+
+Buffers in memory
+Binary vs ASCII data
+File access via OS/8
+Data placement considerations
+
+Outcome
+Student can load and process external data.
+
+Phase 13 — Program Chaining (OS/8 Workflows)
+Goal
+Explain how OS/8 tools cooperate.
+Topics
+
+CHAIN concept
+Example: PAL → CREF
+Difference between:
+
+returning
+chaining
+
+
+
+Outcome
+Student understands OS/8 as a composed toolchain, not a single program.
+
+Phase 14 — Overlays (Memory Optimization)
+Goal
+Introduce large program structure.
+Topics
+
+Overlay regions
+Root vs overlay code
+Loading into memory at runtime
+Relationship to USR
+
+Outcome
+Student understands how large programs are built within small memory.
+
+Phase 15 — Program Architecture on PDP‑8
+Goal
+Tie fields, overlays, and structure together.
+Topics
+
+Typical layouts:
+Field 0: control + OS calls
+Field N: data
+Overlay region: code modules
+
+
+Separation of concerns (code/data)
+
+Outcome
+Student can design a real PDP‑8 program structure.
+
+Phase 16 — Performance and Design Tradeoffs
+Goal
+Understand constraints that drive design choices.
+Topics
+CPU vs I/O
+
+Disk is expensive
+memory is limited
+
+Field usage
+
+DF (cheap)
+CIF (costly)
+overlays (I/O cost)
+
+Tradeoffs table
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ApproachCostUsesingle fieldlow complexitysmall programsmulti-fieldmoderatestructured programsoverlayshigh I/Olarge programs
+Outcome
+Student makes informed design decisions instead of guessing.
+
+Phase 17 — Debugging and Failure Analysis
+Goal
+Learn how to recover from real errors.
+Topics
+Common failures
+
+MONITOR ERROR 4
+bad indirect jump
+wrong IF on return
+
+Diagnostic workflow
+Where am I?
+What is IF/DF?
+What just executed?
+Was it indirect?
+
+Tools
+
+HLT
+RDF / RIF
+memory inspection
+
+Outcome
+Student can diagnose and fix broken programs.
+
+Phase 18 — OS/8 Tools and Workflow
+Goal
+Make the development environment explicit.
+Topics
+
+PIP
+PAL
+LOAD / SAVE
+EDIT / TECO
+command decoder (CCL)
+
+Outcome
+Student understands the full development cycle.
+
+Phase 19 — Device Handlers (Conceptual)
+Goal
+Explain how I/O actually happens.
+Topics
+
+What a device handler is
+How OS/8 invokes it
+Relationship to IOT instructions
+
+Outcome
+Student understands the abstraction layer between program and hardware.
+
+Phase 20 — File System and Storage Concepts
+Goal
+Understand disk behavior.
+Topics
+
+directory structure
+block allocation
+file size limits
+logical devices (DSK:, SYS:)
+
+Outcome
+Student can reason about files and storage problems.
+
+Phase 21 — Boot and System Startup
+Goal
+Introduce system initialization.
+Topics
+
+bootstrapping from disk/tape
+role of bootstrap loaders
+system device concept
+
+Outcome
+Student understands how OS/8 comes up.
+
+Phase 22 — Advanced Program Structure
+Goal
+Refine design conventions.
+Topics
+
+memory discipline
+shared data regions
+subroutine conventions
+modular design patterns
+
+Outcome
+Student writes maintainable PDP‑8 programs.
+
+Phase 23 — Capstone: Integrated Program
+Goal
+Tie everything together.
+Requirements
+Program must:
+
+use multiple files
+include DF or CIF properly
+interact with OS (USR or I/O)
+exit correctly
+demonstrate structured design
+
+Optional:
+
+include an intentional bug and debug it
+
+Outcome
+Student demonstrates full system-level competency.
+
+Final Structure Summary
+6  OS/8 program execution
+7  File formats and lifecycle
+8  Multi-file programs and loader
+9  Fields in practice (IF vs DF)
+10 Control flow pitfalls
+11 USR calls
+12 File I/O
+13 Program chaining
+14 Overlays
+15 Program architecture
+16 Performance and tradeoffs
+17 Debugging and diagnostics
+18 OS/8 tools and workflow
+19 Device handlers
+20 File system
+21 Boot process
+22 Advanced structure
+23 Capstone

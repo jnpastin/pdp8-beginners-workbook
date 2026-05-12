@@ -1,0 +1,1091 @@
+             /
+             / PDP-8 WORKBOOK
+             / CHAPTER 2
+             / EXERCISE 3
+             / PAL8 ASSEMBLY
+             / JEREMY PASTIN
+             / VERSION 1.1 MAY 2, 2026
+             /
+
+             /FIELD 0 ASSUMED
+       0200  *0200
+
+             /
+             /GOAL: CREATE A PROGRAM THAT USES NESTED SUBROUTINES.
+             / THERE WAS NO SPECIFIC PROGRAM TARGET FOR THIS EXERCISE
+             / SO I CHOSE TO BUILD ON THE PREVIOUS ONES, AND CREATE
+             / A BASIC CALCULATOR.  IT HAS THE FOLLOWING FUNCTIONS:
+             /       OPCODE  FUNCTION
+             /       0       ADDITION
+             /       1       SUBTRACTION
+             /       2       GREATER THAN BOOLEAN TEST
+             /       3       EQUAL BOOLEAN TEST
+             /       4       LESS THAN BOOLEAN TEST
+             /       5       ABSOLUTE VALUE
+             /       6       VALUE COMPARISON
+             / ALL OPERATIONS FUNCTION ON TWO VALUES, BOTH MUST BE
+             / SIGNED OR UNSIGNED.
+             / OPCODE IS STORED IN BITS 1-3 OF OPERAT
+             / WHETHER THE VALUES ARE SIGNED OR NOT IS STORED IN BIT 11
+             / 1=SIGNED, 0=UNSIGNED
+
+00200  7300          CLA CLL
+00201  4777          JMS I   (NXTTST)
+00202  5776          JMP I   (TESTS) /RUN TESTS TO VALIDATE
+
+             /OPINIT
+             /ENTRY: VAL1
+             /       VAL2
+             /       OPERAT
+             /EXIT:  RESULT
+00203  0000  OPINIT, 0
+00204  7300          CLA CLL
+00205  1340          TAD     OPERAT  /CHECK INPUT SIGNEDNESS
+00206  0375          AND     (4000)  /BIT 11 IS THE SIGNED FLAG
+00207  7440          SZA
+00210  7201          CLA IAC
+00211  3023          DCA     SIGNED  /STORE FOR FUTURE USE
+00212  1340          TAD     OPERAT  /EXTRACT THE OPCODE
+00213  0374          AND     (3777)  /STRIP OUT THE SIGNED FLAG
+00214  3341          DCA     OPCODE
+00215  4217          JMS     EXECOP  /SUB TO DECODE/EXECUTE OPCODE
+00216  5603          JMP I   OPINIT
+
+             /EXECOP
+             /DECODE THE OPCODE AND CALL THE RIGHT SUBROUTINE
+             /ENTRY: OPCODE  LEGAL VALUES 0-3777, OPINIT STRIPS BIT 11
+             /EXIT:  AC & L DESTROYED
+00217  0000  EXECOP, 0
+00220  1341          TAD     OPCODE  /AC IS ALWAYS 0 ON ENTRY
+00221  1373          TAD     (7771)  /SUBTRACT 7
+00222  7500          SMA             /HANDLE INVALID
+00223  5234          JMP     OPERR
+00224  7200          CLA
+00225  1341          TAD     OPCODE
+00226  1372          TAD     (OPTBLE)
+00227  3342          DCA     OPTMP   /STORE THE POSITION IN THE TABLE
+00230  1742          TAD I   OPTMP
+00231  3342          DCA     OPTMP   /DEREFERENCE THAT VALUE
+00232  4742          JMS I   OPTMP
+00233  5617          JMP I   EXECOP
+
+00234  7300  OPERR,  CLA CLL
+00235  1371          TAD     (7777)  /INDICATE A FAILED DECODING
+00236  7402          HLT
+00237  5770          JMP I   (SKPTST)/ALLOW RESUMPTION WITH NEXT OPCODE
+
+             /ADD
+             /ADD VALUE 1 AND VALUE 2, RETURN THE SUM IN RESULT
+             /ENTRY: VAL1
+             /       VAL2
+             /       SIGNED
+             /EXIT:  RESULT
+             /       OVRFLW          1=AC OVERFLOW, 0=NO AC OVERFLOW
+             /       AC & L DESTROYED
+00240  0000  ADD,    0
+00241  7300          CLA CLL
+00242  1020          TAD     VAL1
+00243  1021          TAD     VAL2
+00244  3022          DCA     RESULT
+00245  1023          TAD     SIGNED
+00246  7450          SNA
+00247  4254          JMS     UNSOFL
+00250  1023          TAD     SIGNED
+00251  7440          SZA
+00252  4265          JMS     SGNOFL
+00253  5640          JMP I   ADD
+
+
+             /UNSOFL
+             /HANDLE UNSIGNED ARITHMETIC OPERATION AC OVERFLOWS
+             /ENTRY: LINK            LINK FROM OPERATION
+             /       AC=0            DCA RESULT+TAD SIGNED ALWAYS AC=0
+             /       OPCODE          0=ADD, 1=SUB THEY USE L DIFFERENTLY
+
+             /EXIT:  OVERFLOW
+             /       AC & L DESTROYED
+00254  0000  UNSOFL, 0
+00255  1341          TAD     OPCODE
+00256  7440          SZA
+00257  7020          CML             /REVERSE L FOR PROPER SUB BEHAVIOR
+00260  7200          CLA
+00261  7430          SZL             /SEE IF THE LINK WAS TOGGLED
+00262  7001          IAC             /AC=1 IF SO
+00263  3026          DCA     OVRFLW
+00264  5654          JMP I   UNSOFL
+
+             /SGNOFL
+             /HANDLE SIGNED ARITHMETIC OPERATION AC OVERFLOWS
+             /ENTRY: RESULT
+             /       OPCODE
+             /EXIT:  OVRFLW
+             /       = SMSIGN AND (RESULT_SIGN XOR SIGN1) FOR ADD
+             /       = (NOT SMSIGN) AND (RESULT_SIGN XOR SIGN1) FOR SUB
+             /       AC & L DESTROYED
+00265  0000  SGNOFL, 0
+00266  4767'         JMS     GETSGN  /GET THE SIGN INFORMATION
+00267  7200          CLA
+00270  1022          TAD     RESULT
+00271  7450          SNA
+00272  5322          JMP     RSLT0
+00273  0375          AND     (4000)  /AC=0 FOR POSITIVE
+00274  7440          SZA
+00275  7201          CLA IAC         /SET AC=1 FOR NEGATIVE SIGN BIT
+00276  1024  XORTST, TAD     SIGN1   /XOR=1 IF AC=1
+00277  7041          CIA             /1->-1 0->0 2->-2
+00300  7001          IAC             /+1
+00301  7440          SZA             /AC=0 -> XOR = 1
+00302  5317          JMP     NOOFLW  /XOR=0 ->NO OVERFLOW
+00303  7200          CLA
+00304  1341          TAD     OPCODE
+00305  7440          SZA             /CHECK FOR SUB
+00306  7120          STL             /TRACK WITH L
+00307  7200          CLA
+00310  1025          TAD     SMSIGN
+00311  7430          SZL
+00312  4324          JMS     INVSGN  /CAN CLOBBER L, USE SUBROUTINE
+00313  7450          SNA
+00314  5317          JMP     NOOFLW  /SMSIGN=0 FOR ADD OR 1 FOR SUB
+00315  3026          DCA     OVRFLW  /SMSIGN=1 FOR ADD OR 0 FOR SUB
+00316  5665          JMP I   SGNOFL
+00317  7300  NOOFLW, CLA CLL
+00320  3026          DCA     OVRFLW
+00321  5665          JMP I   SGNOFL
+
+00322  1024  RSLT0,  TAD     SIGN1
+00323  5276          JMP     XORTST
+
+             /INVSGN
+             /INVERT THE VALUE OF SMSIGN IN THE AC
+             /ENTRY: AC=SMSIGN
+             /EXIT:  AC=NOT SMSIGN
+             /       L DESTROYED
+00324  0000  INVSGN, 0
+00325  7041          CIA
+00326  7001          IAC
+00327  5724          JMP I   INVSGN
+
+00367  0400
+00370  2004
+00371  7777
+00372  0343
+00373  7771
+00374  3777
+00375  4000
+00376  2000
+00377  2034
+       0400          *0400
+             /GETSGN
+             /EXTRACT THE SIGN OF EACH VALUE AND STORE THEM SEPARATELY
+             /COMPARE THE TWO SIGNS TO SEE IF THEY ARE THE SAME
+             /ENTRY: VAL1
+             /       VAL2
+             /EXIT:  SIGN1           0=POSITIVE 1=NEGATIVE
+             /       SIGN2
+             /       SMSIGN          0=DIFFERENT SIGNS 1=SAME SIGN
+             /       AC & L DESTROYED
+00400  0000  GETSGN, 0
+00401  7300          CLA CLL
+00402  1020          TAD     VAL1
+00403  0377          AND     (4000)
+00404  7440          SZA
+00405  7201          CLA IAC         /SET AC=1 IF NEGATIVE
+00406  3024          DCA     SIGN1
+00407  1021          TAD     VAL2
+00410  0377          AND     (4000)
+00411  7440          SZA
+00412  7201          CLA IAC         /SET AC=1 IF NEGATIVE
+00413  3360          DCA     SIGN2
+00414  1360          TAD     SIGN2
+00415  7041          CIA
+00416  1024          TAD     SIGN1
+00417  7440          SZA             /IF SIGN1-SIGN2=0 SIGNS ARE SAME
+00420  7120          STL             /SET LINK IF DIFFERENT
+00421  7450          SNA
+00422  7100          CLL             /CLEAR LINK IF SAME
+00423  7200          CLA
+00424  7420          SNL
+00425  7001          IAC             /INCREMENT IF THE SIGNS ARE SAME
+00426  3025          DCA     SMSIGN
+00427  5600          JMP I   GETSGN
+
+             /SUB
+             /RETURN THE VALUE OF VAL1-VAL2
+             /ENTRY: VAL1
+             /       VAL2
+             /       SIGNED
+             /EXIT:  RESULT
+             /       OVERFLW         INDICATES A BORROW WAS REQUIRED
+             /       AC & L DESTROYED
+00430  0000  SUB,    0
+00431  7300          CLA CLL
+00432  1021          TAD     VAL2
+00433  7041          CIA
+00434  1020          TAD     VAL1
+00435  3022          DCA     RESULT
+00436  1023          TAD     SIGNED
+00437  7450          SNA
+00440  4776'         JMS     UNSOFL
+00441  1023          TAD     SIGNED
+00442  7440          SZA
+00443  4775'         JMS     SGNOFL
+00444  5630          JMP I   SUB
+
+             /GREATR
+             /PERFORM A BOOLEAN GREATER THAN COMPARISON
+             /ENTRY: VAL1
+             /       VAL2
+             /       SIGNED
+             /EXIT:  RESULT          1=TRUE 0=FALSE
+             /       AC & L DESTROYED
+00445  0000  GREATR, 0
+00446  4345          JMS     CMPARE  /LEVERAGE COMPARISON SUBROUTINE
+00447  7300          CLA CLL
+00450  1022          TAD     RESULT
+00451  7450          SNA
+00452  5262          JMP     GRTXIT  /0=EQUAL=FALSE
+00453  7001          IAC
+00454  7450          SNA
+00455  3022          DCA     RESULT  /-1+1=0=LESS THAN=FALSE
+00456  7450          SNA
+00457  5262          JMP     GRTXIT
+00460  7201          CLA IAC         /RESULT !=0 !=-1 -> =1=TRUE
+00461  3022          DCA     RESULT  /FALLS THROUGH TO EXIT
+00462  5645  GRTXIT, JMP I   GREATR
+
+             /EQUAL
+             /PERFORM A BOOLEAN EQUAL TO COMPARISON
+             /ENTRY: VAL1
+             /       VAL2
+             /       SIGNED
+             /EXIT:  RESULT          1=TRUE 0=FALSE
+             /       AC & L DESTROYED
+00463  0000  EQUAL,  0
+00464  4345          JMS     CMPARE
+00465  7300          CLA CLL
+00466  1022          TAD     RESULT
+00467  7450          SNA
+00470  7120          STL             /USE L TO TRACK 0=TRUE, +/-1=FALSE
+00471  7420          SNL
+00472  5276          JMP     NEQL
+00473  7201          CLA IAC
+00474  3022          DCA     RESULT
+00475  5300          JMP     EQEXIT
+00476  7200  NEQL,   CLA
+00477  3022          DCA     RESULT  /FALLS THROUGH TO EXIT
+00500  5663  EQEXIT, JMP I   EQUAL
+
+
+             /LESSER
+             /PERFORM A BOOLEAN LESS THAN COMPARISON
+             /ENTRY: VAL1
+             /       VAL2
+             /       SIGNED
+             /EXIT:  RESULT          1=TRUE 0=FALSE
+             /       AC & L DESTROYED
+00501  0000  LESSER, 0
+00502  4345          JMS     CMPARE
+00503  7300          CLA CLL
+00504  1022          TAD     RESULT
+00505  7450          SNA             /0=EQUAL=FALSE
+00506  5317          JMP     LSEXIT
+00507  7001          IAC
+00510  7450          SNA             /-1+1=0=LESS THAN=TRUE
+00511  5315          JMP     LSTRUE
+00512  7200          CLA
+00513  3022          DCA     RESULT
+00514  5317          JMP     LSEXIT
+00515  7301  LSTRUE, CLA CLL IAC
+00516  3022          DCA     RESULT  /FALLS THROUGH TO EXIT
+00517  5701  LSEXIT, JMP I   LESSER
+
+             /ABSVAL
+             /RETURN THE ABSOLUTE VALUE OF INPUTS
+             /ENTRY: VAL1
+             /       VAL2
+             /       SIGNED
+             /EXIT:  RESULT          =VAL1
+             /       OVRFLW          =VAL2
+             /       AC & L DESTROYED
+00520  0000  ABSVAL, 0
+00521  7300          CLA CLL
+00522  1023          TAD     SIGNED
+00523  7440          SZA
+00524  5332          JMP     SGNABS  /SIGNED VALUES NEED TO BE CONVERTED
+
+00525  1020          TAD     VAL1    /UNSIGNED JUST GET COPIED
+00526  3022          DCA     RESULT
+00527  1021          TAD     VAL2
+00530  3026          DCA     OVRFLW
+00531  5720          JMP I   ABSVAL
+00532  7300  SGNABS, CLA CLL
+00533  1020          TAD     VAL1
+00534  7510          SPA             /CONVERT NEG VALUES TO POS
+00535  7041          CIA
+00536  3022          DCA     RESULT
+00537  1021          TAD     VAL2
+00540  7510          SPA
+00541  7041          CIA
+00542  3026          DCA     OVRFLW
+00543  5720          JMP I   ABSVAL
+
+             /CMPRET
+             /TRAMPOLINE TO BE ABLE TO RETURN FROM CMPARE SUBROUTINE
+             /RETURN JUMP IS ON PAGE 3, DOUBLE INDIRECTION DOESNT WORK
+00544  5745  CMPRET, JMP I   CMPARE
+
+             /CMPARE
+             /COMPARE TWO VALUES AND RETURN THEIR RELATIONSHIP
+             /ENTRY: VAL1
+             /       VAL2
+             /       SIGNED
+             /EXIT:  RESULT          1 -> VAL1>VAL2
+             /                       0 -> VAL1=VAL2
+             /                       -1-> VAL1<VAL2
+             /       AC & L DESTROYED
+00545  0000  CMPARE, 0
+00546  7300          CLA CLL
+00547  1023          TAD     SIGNED
+00550  7440          SZA
+00551  5774          JMP I   (SGNCMP)
+00552  5773          JMP I   (UNSCMP)
+
+00573  0600
+00574  0611
+00575  0265
+00576  0254
+00577  4000
+       0600          *0600
+00600  7300  UNSCMP, CLA CLL
+00601  1020          TAD     VAL1
+00602  7041          CIA
+00603  1021          TAD     VAL2
+00604  7450          SNA             /0-> VAL1=VAL2
+00605  5241          JMP     CMPEQ
+00606  7420          SNL             /TEST L FOR CARRY
+00607  5244          JMP     CMPGT
+00610  5235          JMP     CMPLT
+00611  4777  SGNCMP, JMS I   (GETSGN)
+00612  7300          CLA CLL
+00613  1025          TAD     SMSIGN
+00614  7450          SNA
+00615  5217          JMP     CMPDS   /DIFFERENT SIGNS
+00616  5224          JMP     CMPSS   /SAME SIGN
+00617  7300  CMPDS,  CLA CLL
+00620  1024          TAD     SIGN1
+00621  7440          SZA             /SIGN ONE = POSITIVE-> VAL1>VAL2
+00622  5235          JMP     CMPLT
+00623  5244          JMP     CMPGT
+00624  7300  CMPSS,  CLA CLL
+00625  1021          TAD     VAL2
+00626  7041          CIA
+00627  1020          TAD     VAL1    /AC=VAL1-VAL2
+00630  7450          SNA
+00631  5241          JMP     CMPEQ   /0->VAL1=VAL2
+00632  7500          SMA
+00633  5244          JMP     CMPGT   /1-> VAL1>VAL2
+00634  5235          JMP     CMPLT   /-1-> VAL1<VAL2
+00635  7300  CMPLT,  CLA CLL
+00636  1376          TAD     (7777)
+00637  3022          DCA     RESULT  /STORE -1
+00640  5246          JMP     CMPXIT
+00641  7300  CMPEQ,  CLA CLL
+00642  3022          DCA     RESULT  /STORE 0
+00643  5246          JMP     CMPXIT
+00644  7301  CMPGT,  CLA CLL IAC
+00645  3022          DCA     RESULT  /STORE 1
+00646  5775  CMPXIT, JMP I   (CMPRET)
+
+00775  0544
+00776  7777
+00777  0400
+       2000          *2000
+             /TESTS
+             /TEST HARNESS TO VALIDATE IMPLEMENTATION
+             /ENTRY: N/A
+             /EXIT:  HLT IF RESULT IS NOT AS EXPECTED
+02000  7300  TESTS,  CLA CLL
+02001  2027          ISZ     TESTNO  /INCREMENT COUNTER FOR DEBUG USE
+02002  1410          TAD I   INPUT1  /POPULATE THE VALUES
+02003  7450          SNA             /LOOK FOR SENTINEL OF 0000
+02004  4234  SKPTST, JMS     NXTTST  /**VAL1 CANNOT BE 0**
+02005  3020          DCA     VAL1
+02006  1411          TAD I   INPUT2
+02007  3021          DCA     VAL2
+02010  4777          JMS I   (OPINIT)/RUN THE OPERATION
+02011  7300          CLA CLL
+02012  1022          TAD     RESULT
+02013  7041          CIA
+02014  1414          TAD I   EXPCTD  /VALIDATE RESULT 0=SUCCESS
+02015  7440          SZA
+02016  5262          JMP     FINERR
+02017  7300          CLA CLL
+02020  1362          TAD     CKOFLW  /DOES OVERFLOW NEED TO BE VALIDATED
+
+02021  7450          SNA
+02022  7120          STL             /USE LINK TO TRACK FOR .+7
+02023  7200          CLA
+02024  1026          TAD     OVRFLW
+02025  7041          CIA
+02026  1415          TAD I   XOVFLW  /VALIDATE OVERFLOW 0=SUCCESS
+02027  7450          SNA
+02030  5200          JMP     TESTS   /ITERATE IF SUCCESS
+02031  7430          SZL
+02032  5200          JMP     TESTS   /ITERATE IF NO NEED TO CHECK
+02033  5262          JMP     FINERR  /HALT AND EXIT IF FAIL
+
+             /NXTTST
+             /ADVANCE TO THE NEXT TEST, RESET THE INPUTS
+             /ENTRY: INPUT1
+             /       INPUT2
+             /       INPOPR
+             /EXIT:  OPERAT
+             /       AC LOADED WITH INPUT1
+02034  0000  NXTTST, 0
+02035  7300          CLA CLL
+02036  1027          TAD     TESTNO  /THE FIRST RUN NEEDS 2X INCS
+02037  7440          SZA             /DUE TO TESTS ALSO INCREMENTING
+02040  7120          STL
+02041  7200          CLA
+02042  1360          TAD     IN1ADR  /RESET THE VALUE INPUTS
+02043  7430          SZL
+02044  7001          IAC
+02045  3010          DCA     INPUT1
+02046  1361          TAD     IN2ADR
+02047  3011          DCA     INPUT2
+02050  1413          TAD I   INOFLW
+02051  3362          DCA     CKOFLW
+02052  1412          TAD I   INPOPR
+02053  7001          IAC             /LOOK FOR SENTINEL OF 7777
+02054  7450          SNA
+02055  5266          JMP     FINISH  /RETURN TO OS/8 IF WE ARE DONE
+02056  1376          TAD     (7777)  /RESTORE THE AC (UNDO PREVIOUS IAC)
+
+02057  3775          DCA I   (OPERAT)
+02060  1410          TAD I   INPUT1  /RELOAD AC WITH INPUT 1
+02061  5634          JMP I   NXTTST
+
+02062  7300  FINERR, CLA CLL
+02063  1374          TAD     (1234)  /PUT A UNIQUE VALUE ON THE LIGHTS
+02064  7402          HLT
+02065  5773          JMP I   (7600)
+
+02066  7300  FINISH, CLA CLL
+02067  1372          TAD     (3333)  /PUT A UNIQUE VALUE ON THE LIGHTS
+02070  7402          HLT
+02071  5773          JMP I   (7600)
+
+             /DATA DECLARATIONS
+
+             /AUTOINDEX VALUES
+02172  3333
+02173  7600
+02174  1234
+02175  0340
+02176  7777
+02177  0203
+       0010          *0010
+00010  0667  INPUT1, 0667
+00011  0707  INPUT2, 0707
+00012  0727  INPOPR, 0727
+00013  0747  INOFLW, 0747
+00014  0777  EXPCTD, 0777
+00015  1377  XOVFLW, 1377
+
+             /PAGE 0 VALUES
+       0020          *0020
+00020  0000  VAL1,   0
+00021  0000  VAL2,   0
+00022  0000  RESULT, 0
+00023  0000  SIGNED, 0
+00024  0000  SIGN1,  0
+00025  0000  SMSIGN, 0
+00026  0000  OVRFLW, 0
+00027  0000  TESTNO, 0
+
+             /PAGE 1 VALUES
+       0340          *0340
+00340  0000  OPERAT, 0
+00341  0000  OPCODE, 0
+00342  0000  OPTMP,  0
+00343  0240  OPTBLE, ADD
+00344  0430          SUB
+00345  0445          GREATR
+00346  0463          EQUAL
+00347  0501          LESSER
+00350  0520          ABSVAL
+00351  0545          CMPARE
+
+             /PAGE 2 VALUES
+       0560          *0560
+00560  0000  SIGN2,  0
+
+             /PAGE 3 VALUES
+       2160          *2160
+02160  0666  IN1ADR, 0666            /2 BELOW START BECAUSE NXTTST INCS
+02161  0707  IN2ADR, 0707            /1 BELOW START, NXTTST DOESNT INC
+02162  0000  CKOFLW, 0
+
+       0670          *0670           /INPUT1 VALUE TABLE
+00670  3712          3712
+00671  0546          0546
+00672  7103          7103
+00673  2257          2257
+00674  6140          6140
+00675  0235          0235
+00676  1074          1074
+00677  5531          5531
+00700  4000          4000
+00701  7777          7777
+00702  0001          0001
+00703  3777          3777
+00704  4000          4000
+00705  7777          7777
+00706  0001          0001
+00707  0000          0000            /SENTINEL
+
+       0710          *0710           /INPUT2 VALUE TABLE
+00710  0761          0761
+00711  4025          4025
+00712  0015          0015
+00713  6732          6732
+00714  6140          6140
+00715  7701          7701
+00716  5440          5440
+00717  0321          0321
+00720  7642          7642
+00721  7542          7542
+00722  6560          6560
+00723  0201          0201
+00724  0667          0667
+00725  3042          3042
+00726  0512          0512
+00727  0000          0000            /SHOULD NEVER BE SEEN, JUST IN CASE
+
+
+       0730          *0730           /INPOPR VALUE TABLE
+00730  0000          0000            /UNSIGNED ADDITION
+00731  4000          4000            /SIGNED ADDITION
+00732  0001          0001            /UNSIGNED SUBTRACTION
+00733  4001          4001            /SIGNED SUBTRACTION
+00734  0002          0002            /UNSIGNED GREATER THAN
+00735  4002          4002            /SIGNED GREATER THAN
+00736  0003          0003            /UNSIGNED EQUAL TO
+00737  4003          4003            /SIGNED EQUAL TO
+00740  0004          0004            /UNSIGNED LESS THAN
+00741  4004          4004            /SIGNED LESS THAN
+00742  0005          0005            /UNSIGNED ABSOLUTE VALUE
+00743  4005          4005            /SIGNED ABSOLUTE VALUE
+00744  0006          0006            /UNSIGNED COMPARE
+00745  4006          4006            /SIGNED COMPARE
+00746  7777          7777            /SENTINEL
+
+       0750          *0750           /IS OVERFLOW VALIDATION REQUIRED
+00750  0001          1
+00751  0001          1
+00752  0001          1
+00753  0001          1
+00754  0000          0
+00755  0000          0
+00756  0000          0
+00757  0000          0
+00760  0000          0
+00761  0000          0
+00762  0001          1
+00763  0001          1
+00764  0000          0
+00765  0000          0
+
+
+
+             /EXPECTED AC VALUES
+       1000          *1000           /THRU *1322
+
+01000  4673          4673            /UNSIGNED ADDITION
+01001  4573          4573
+01002  7120          7120
+01003  1211          1211
+01004  4300          4300
+01005  0136          0136
+01006  6534          6534
+01007  6052          6052
+01010  3642          3642
+01011  7541          7541
+01012  6561          6561
+01013  4200          4200
+01014  4667          4667
+01015  3041          3041
+01016  0513          0513
+01017  4673          4673            /SIGNED ADDITION
+01020  4573          4573
+01021  7120          7120
+01022  1211          1211
+01023  4300          4300
+01024  0136          0136
+01025  6534          6534
+01026  6052          6052
+01027  3642          3642
+01030  7541          7541
+01031  6561          6561
+01032  4200          4200
+01033  4667          4667
+01034  3041          3041
+01035  0513          0513
+01036  2731          2731            /UNSIGNED SUBTRACTION
+01037  4521          4521
+01040  7066          7066
+01041  3325          3325
+01042  0000          0000
+01043  0334          0334
+01044  3434          3434
+01045  5210          5210
+01046  4136          4136
+01047  0235          0235
+01050  1221          1221
+01051  3576          3576
+01052  3111          3111
+01053  4735          4735
+01054  7267          7267
+01055  2731          2731            /SIGNED SUBTRACTION
+01056  4521          4521
+01057  7066          7066
+01060  3325          3325
+01061  0000          0000
+01062  0334          0334
+01063  3434          3434
+01064  5210          5210
+01065  4136          4136
+01066  0235          0235
+01067  1221          1221
+01070  3576          3576
+01071  3111          3111
+01072  4735          4735
+01073  7267          7267
+01074  0001          0001            /UNSIGNED GREATER THAN
+01075  0000          0000
+01076  0001          0001
+01077  0000          0000
+01100  0000          0000
+01101  0000          0000
+01102  0000          0000
+01103  0001          0001
+01104  0000          0000
+01105  0001          0001
+01106  0000          0000
+01107  0001          0001
+01110  0001          0001
+01111  0001          0001
+01112  0000          0000
+01113  0001          0001            /SIGNED GREATER THAN
+01114  0001          0001
+01115  0000          0000
+01116  0001          0001
+01117  0000          0000
+01120  0001          0001
+01121  0001          0001
+01122  0000          0000
+01123  0000          0000
+01124  0001          0001
+01125  0001          0001
+01126  0001          0001
+01127  0000          0000
+01130  0000          0000
+01131  0000          0000
+01132  0000          0000            /UNSIGNED EQUAL TO
+01133  0000          0000
+01134  0000          0000
+01135  0000          0000
+01136  0001          0001
+01137  0000          0000
+01140  0000          0000
+01141  0000          0000
+01142  0000          0000
+01143  0000          0000
+01144  0000          0000
+01145  0000          0000
+01146  0000          0000
+01147  0000          0000
+01150  0000          0000
+01151  0000          0000            /SIGNED EQUAL TO
+01152  0000          0000
+01153  0000          0000
+01154  0000          0000
+01155  0001          0001
+01156  0000          0000
+01157  0000          0000
+01160  0000          0000
+01161  0000          0000
+01162  0000          0000
+01163  0000          0000
+01164  0000          0000
+01165  0000          0000
+01166  0000          0000
+01167  0000          0000
+01170  0000          0000            /UNSIGNED LESS THAN
+01171  0001          0001
+01172  0000          0000
+01173  0001          0001
+01174  0000          0000
+01175  0001          0001
+01176  0001          0001
+01177  0000          0000
+01200  0001          0001
+01201  0000          0000
+01202  0001          0001
+01203  0000          0000
+01204  0000          0000
+01205  0000          0000
+01206  0001          0001
+01207  0000          0000            /SIGNED LESS THAN
+01210  0000          0000
+01211  0001          0001
+01212  0000          0000
+01213  0000          0000
+01214  0000          0000
+01215  0000          0000
+01216  0001          0001
+01217  0001          0001
+01220  0000          0000
+01221  0000          0000
+01222  0000          0000
+01223  0001          0001
+01224  0001          0001
+01225  0001          0001
+01226  3712          3712            /UNSIGNED ABSOLUTE VALUE (VAL1)
+01227  0546          0546
+01230  7103          7103
+01231  2257          2257
+01232  6140          6140
+01233  0235          0235
+01234  1074          1074
+01235  5531          5531
+01236  4000          4000
+01237  7777          7777
+01240  0001          0001
+01241  3777          3777
+01242  4000          4000
+01243  7777          7777
+01244  0001          0001
+01245  3712          3712            /SIGNED ABSOLUTE VALUE (VAL1)
+01246  0546          0546
+01247  0675          0675
+01250  2257          2257
+01251  1640          1640
+01252  0235          0235
+01253  1074          1074
+01254  2247          2247
+01255  4000          4000
+01256  0001          0001
+01257  0001          0001
+01260  3777          3777
+01261  4000          4000
+01262  0001          0001
+01263  0001          0001
+01264  0001          0001            /UNSIGNED COMPARISON
+01265  7777          7777
+01266  0001          0001
+01267  7777          7777
+01270  0000          0000
+01271  7777          7777
+01272  7777          7777
+01273  0001          0001
+01274  7777          7777
+01275  0001          0001
+01276  7777          7777
+01277  0001          0001
+01300  0001          0001
+01301  0001          0001
+01302  7777          7777
+01303  0001          0001            /SIGNED COMPARISON
+01304  0001          0001
+01305  7777          7777
+01306  0001          0001
+01307  0000          0000
+01310  0001          0001
+01311  0001          0001
+01312  7777          7777
+01313  7777          7777
+01314  0001          0001
+01315  0001          0001
+01316  0001          0001
+01317  7777          7777
+01320  7777          7777
+01321  7777          7777
+
+             /EXPECTED OVERFLOW VALUES
+       1400          *1400           /THRU *1722
+01400  0000          0               /UNSIGNED ADDITION
+01401  0000          0
+01402  0000          0
+01403  0001          1
+01404  0001          1
+01405  0001          1
+01406  0000          0
+01407  0000          0
+01410  0001          1
+01411  0001          1
+01412  0000          0
+01413  0000          0
+01414  0000          0
+01415  0001          1
+01416  0000          0
+01417  0001          1               /SIGNED ADDITION
+01420  0000          0
+01421  0000          0
+01422  0000          0
+01423  0000          0
+01424  0000          0
+01425  0000          0
+01426  0000          0
+01427  0001          1
+01430  0000          0
+01431  0000          0
+01432  0001          1
+01433  0000          0
+01434  0000          0
+01435  0000          0
+01436  0000          0               /UNSIGNED SUBTRACTION
+01437  0001          1
+01440  0000          0
+01441  0001          1
+01442  0000          0
+01443  0001          1
+01444  0001          1
+01445  0000          0
+01446  0001          1
+01447  0000          0
+01450  0001          1
+01451  0000          0
+01452  0000          0
+01453  0000          0
+01454  0001          1
+01455  0000          0               /SIGNED SUBTRACTION
+01456  0001          1
+01457  0000          0
+01460  0000          0
+01461  0000          0
+01462  0000          0
+01463  0000          0
+01464  0000          0
+01465  0000          0
+01466  0000          0
+01467  0000          0
+01470  0000          0
+01471  0001          1
+01472  0000          0
+01473  0000          0
+01474  0000          0               /UNSIGNED GREATER THAN (N/A)
+01475  0000          0
+01476  0000          0
+01477  0000          0
+01500  0000          0
+01501  0000          0
+01502  0000          0
+01503  0000          0
+01504  0000          0
+01505  0000          0
+01506  0000          0
+01507  0000          0
+01510  0000          0
+01511  0000          0
+01512  0000          0
+01513  0000          0               /SIGNED GREATER THAN (N/A)
+01514  0000          0
+01515  0000          0
+01516  0000          0
+01517  0000          0
+01520  0000          0
+01521  0000          0
+01522  0000          0
+01523  0000          0
+01524  0000          0
+01525  0000          0
+01526  0000          0
+01527  0000          0
+01530  0000          0
+01531  0000          0
+01532  0000          0               /UNSIGNED EQUAL TO (N/A)
+01533  0000          0
+01534  0000          0
+01535  0000          0
+01536  0000          0
+01537  0000          0
+01540  0000          0
+01541  0000          0
+01542  0000          0
+01543  0000          0
+01544  0000          0
+01545  0000          0
+01546  0000          0
+01547  0000          0
+01550  0000          0
+01551  0000          0               /SIGNED EQUAL TO (N/A)
+01552  0000          0
+01553  0000          0
+01554  0000          0
+01555  0000          0
+01556  0000          0
+01557  0000          0
+01560  0000          0
+01561  0000          0
+01562  0000          0
+01563  0000          0
+01564  0000          0
+01565  0000          0
+01566  0000          0
+01567  0000          0
+01570  0000          0               /UNSIGNED LESS THAN (N/A)
+01571  0000          0
+01572  0000          0
+01573  0000          0
+01574  0000          0
+01575  0000          0
+01576  0000          0
+01577  0000          0
+01600  0000          0
+01601  0000          0
+01602  0000          0
+01603  0000          0
+01604  0000          0
+01605  0000          0
+01606  0000          0
+01607  0000          0               /SIGNED LESS THAN (N/A)
+01610  0000          0
+01611  0000          0
+01612  0000          0
+01613  0000          0
+01614  0000          0
+01615  0000          0
+01616  0000          0
+01617  0000          0
+01620  0000          0
+01621  0000          0
+01622  0000          0
+01623  0000          0
+01624  0000          0
+01625  0000          0
+01626  0761          0761            /UNSIGNED ABSOLUTE VALUE (VAL2)
+01627  4025          4025
+01630  0015          0015
+01631  6732          6732
+01632  6140          6140
+01633  7701          7701
+01634  5440          5440
+01635  0321          0321
+01636  7642          7642
+01637  7542          7542
+01640  6560          6560
+01641  0201          0201
+01642  0667          0667
+01643  3042          3042
+01644  0512          0512
+01645  0761          0761            /SIGNED ABSOLUTE VALUE (VAL2)
+01646  3753          3753
+01647  0015          0015
+01650  1046          1046
+01651  1640          1640
+01652  0077          0077
+01653  2340          2340
+01654  0321          0321
+01655  0136          0136
+01656  0236          0236
+01657  1220          1220
+01660  0201          0201
+01661  0667          0667
+01662  3042          3042
+01663  0512          0512
+01664  0000          0               /UNSIGNED COMPARISON (N/A)
+01665  0000          0
+01666  0000          0
+01667  0000          0
+01670  0000          0
+01671  0000          0
+01672  0000          0
+01673  0000          0
+01674  0000          0
+01675  0000          0
+01676  0000          0
+01677  0000          0
+01700  0000          0
+01701  0000          0
+01702  0000          0
+01703  0000          0               /SIGNED COMPARISON (N/A)
+01704  0000          0
+01705  0000          0
+01706  0000          0
+01707  0000          0
+01710  0000          0
+01711  0000          0
+01712  0000          0
+01713  0000          0
+01714  0000          0
+01715  0000          0
+01716  0000          0
+01717  0000          0
+01720  0000          0
+01721  0000          0
+
+             $
+
+
+ABSVAL 0520      VAL1   0020
+ADD    0240      VAL2   0021
+CKOFLW 2162      XORTST 0276
+CMPARE 0545      XOVFLW 0015
+CMPDS  0617
+CMPEQ  0641
+CMPGT  0644
+CMPLT  0635
+CMPRET 0544
+CMPSS  0624
+CMPXIT 0646
+EQEXIT 0500
+EQUAL  0463
+EXECOP 0217
+EXPCTD 0014
+FINERR 2062
+FINISH 2066
+GETSGN 0400
+GREATR 0445
+GRTXIT 0462
+INOFLW 0013
+INPOPR 0012
+INPUT1 0010
+INPUT2 0011
+INVSGN 0324
+IN1ADR 2160
+IN2ADR 2161
+LESSER 0501
+LSEXIT 0517
+LSTRUE 0515
+NEQL   0476
+NOOFLW 0317
+NXTTST 2034
+OPCODE 0341
+OPERAT 0340
+OPERR  0234
+OPINIT 0203
+OPTBLE 0343
+OPTMP  0342
+OVRFLW 0026
+RESULT 0022
+RSLT0  0322
+SGNABS 0532
+SGNCMP 0611
+SGNOFL 0265
+SIGNED 0023
+SIGN1  0024
+SIGN2  0560
+SKPTST 2004
+SMSIGN 0025
+SUB    0430
+TESTNO 0027
+TESTS  2000
+UNSCMP 0600
+UNSOFL 0254
+
+
+
+
+ERRORS DETECTED: 0
+LINKS GENERATED: 3
