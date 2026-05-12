@@ -88,3 +88,44 @@ Test inputs are 13-word arrays at `0400` (INPUT1) and `0420` (INPUT2). The resul
 - The final carry out of an N-word addition is in Link after the last `DCA`. Capture it with `RAL` and store it as an additional result word.
 - Auto-index registers initialized to TABLE−1 give correct pre-increment behavior with no special-case handling for the first access.
 - A pseudo-random loop length drawn from switch register state is a practical way to exercise variable-length code paths during interactive debugging without needing a separate test harness.
+
+---
+
+## Exercise 3 — Multi-Word Comparison Routine
+
+### What It Does
+
+Compares two multi-word integers — either both unsigned or both signed two's complement — and stores a three-valued result: `0001` (A > B), `0000` (A = B), or `7777` (A < B). Both values are given as a pointer to their high word plus a word count; words are stored consecutively in memory from highest to lowest. The `TWOCMP` flag selects unsigned (`0`) or signed (`1`) mode.
+
+The test inputs are 5-word unsigned values:
+- INPUT1 (at `0351`): `1564 5465 2315 7231 6453`
+- INPUT2 (at `0356`): `4156 5454 5463 7210 0756`
+
+High word `1564` < `4156`, so the expected result is `7777` (A < B).
+
+### Implementation Rationale
+
+**Dispatch.** The program reads `TWOCMP` and branches immediately to `UNSIGN` (unsigned) or `SIGNED`. In both cases `CMPINI` is called first to handle any difference in word lengths before word-by-word comparison begins.
+
+**`CMPINI` subroutine.** Computes `IN1LEN − IN2LEN`. If the lengths differ, a length comparison alone determines the result. For unsigned or same-sign positive values, a longer number is always larger; for same-sign negative values, a longer number is always more negative (smaller). The sign check uses `SIGN1` (already set on the signed path, zero on the unsigned path). `CML` inverts the carry-derived ordering when `SIGN1` is nonzero, reversing AGTB/ALTB for the negative case without any extra branch. If the lengths are equal, `CURWRD` is initialised to `CIA(IN1LEN)` for use as a down-counter in `NXTWRD`, and execution returns to the caller.
+
+**Unsigned comparison (`UNSIGN` / `UNSCMP`).** Each word pair is compared as `CIA(B_word) + A_word`. The CIA operation on any B_word produces a carry out into Link for the zero case (CIA(0) increments through `7777` to `0000`, generating carry), and the subsequent `TAD A_word` either sustains or removes that carry. After `SNA` routes the equal-word case to `NXTWRD`, `SNL` routes the result: Link = 1 means A > B (`AGTB`), Link = 0 means A < B (`ALTB`).
+
+**Signed comparison.** The high words of both inputs are read and their sign bits are extracted with `AND (4000)` / `RTL`, producing 0 or 1 in `SIGN1` and `SIGN2`. `CIA(SIGN2) + SIGN1` is zero when signs are equal and nonzero when they differ. Different signs are resolved immediately by `DIFSIN`: if `SIGN1` is 1 (A negative, B positive) the result is `ALTB`; if `SIGN1` is 0 (A positive, B negative) the result is `AGTB`. For same-sign values, `SMSIGN` calls `CMPINI` and then enters `SGNCMP` for a word-by-word comparison identical in structure to `UNSCMP`, using the same CIA + SNL idiom.
+
+**`NXTWRD`.** When two corresponding words are equal, `NXTWRD` checks `CURWRD` via `ISZ`. If the counter reaches zero all words have been compared and `AEQB` stores the equal result. Otherwise, both `INPUT1` and `INPUT2` pointers are incremented by 1 to advance to the next word, and execution jumps back to either `UNSCMP` or `SGNCMP` depending on `TWOCMP`.
+
+### Non-Intuitive Points for Beginners
+
+- **`CIA(0)` sets Link.** CIA is CMA followed by IAC. `CMA(0000) = 7777`; `IAC(7777) = 0000` with carry out into Link. This means `CIA(B) + A` with B = 0 leaves Link = 1 regardless of A (as long as A ≤ `7777`). The SNL-based decision therefore handles the B = 0 edge case correctly without special treatment.
+- **`CMPINI` uses Link from CIA + TAD to determine length order.** The carry-out of `CIA(IN2LEN) + IN1LEN` is 1 when IN1LEN > IN2LEN and 0 when IN1LEN < IN2LEN. Because `CLA` (not `CLA CLL`) precedes the sign check, that Link value is preserved through the `TAD SIGN1` and `SZA` sequence. `CML` then optionally inverts it, and `SZL` reads the (possibly flipped) value to route to `AGTB` or `ALTB`. One code path handles all four combinations of sign and relative length.
+- **`SGNCMP` uses the same CIA + SNL idiom as `UNSCMP`.** For same-sign values the comparison reduces to comparing their magnitudes word by word, which is identical to unsigned comparison. Using `SMA` (test sign bit of the difference) would fail for lower words, whose values span the full 12-bit range — a difference ≥ `4000` octal would set bit 11 and be misread as negative. `SNL` is correct in both sections.
+- **`NXTWRD` uses `CLA CLL` on entry.** The comparison loop arrives at `NXTWRD` only when the current words are equal. At that point AC is 0 and Link is 1 (the CIA of any nonzero value followed by `TAD` of the same value produces `AC = 0, L = 1`; CIA(0)+0 also gives `AC = 0, L = 1`). `CLA CLL` is used rather than `CLA` to ensure a clean state before the ISZ-based counter test and pointer arithmetic, neither of which depends on Link.
+- **Pointers `INPUT1` and `INPUT2` are modified in place.** Rather than using a separate current-position pointer, `NXTWRD` increments the `INPUT1` and `INPUT2` data words directly. This means the values in the data section are consumed during a single comparison run and would need to be reset before re-use. For the single-run test case this is the simplest approach.
+
+### Key Learning Points
+
+- Multi-word comparison starts at the most significant word and works downward. The first word pair that differs determines the result; only if all word pairs are equal is the result equal.
+- `CIA(B) + A` with `SNL` is the correct unsigned-comparison idiom on the PDP-8. It handles B = 0 correctly because CIA(0) produces carry via the intermediate `7777 → 0000` transition. `SMA` on the difference is wrong for words that can reach the upper half of the 12-bit range.
+- Signed multi-word comparison decomposes into three independent sub-problems: different signs (sign bits alone determine the result), same-sign different lengths (`CMPINI` with `CML` for negatives), and same-sign equal lengths (word-by-word unsigned comparison, since the magnitude ordering is the same for both positive and negative values of identical sign).
+- Factoring the length test into a shared `CMPINI` subroutine called from both the unsigned and signed paths avoids duplicating the length-comparison and CURWRD-initialisation logic, at the cost of requiring `SIGN1` to be set (to 0) before the unsigned path reaches `CMPINI`.

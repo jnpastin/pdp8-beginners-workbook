@@ -52,7 +52,7 @@
 **Exercises**
 1. ✅ 24‑bit addition and subtraction 
 2. ✅ Variable‑length accumulation with overflow detection 
-3. Multi‑word comparison routine 
+3. ✅ Multi‑word comparison routine 
 
 ---
 
