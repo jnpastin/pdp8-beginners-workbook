@@ -100,3 +100,42 @@ The five field-change techniques demonstrated:
 - For `JMP I` with a pending `CIF`, the pointer fetch uses the current IF; the jump lands in the new IF. Writing the jump target to a known address (address 0) before issuing `CIF CDF` + `JMP I 0` is the standard single-field trampoline idiom.
 - A field-safe subroutine must save the caller's IF and DF before changing either, and restore both before returning. `RIF`/`RDF` capture the current values; cross-field indirect writes store them somewhere the subroutine can reach; dynamically built `CDF`/`CIF` instructions reconstruct the return path.
 - The write-then-fall-through self-modification pattern is used consistently throughout this program: compute an instruction word, store it into a zeroed placeholder (`CDF1`, `CIF1`, `CDF2`, `CIF2`, `CTRDF`, `CTRIF`, `RETDF`, `RETIF`), and let sequential execution flow through it. What varies between instances is only how the value is computed and what immediately follows.
+
+---
+
+## Exercise 3 — EAE Detection with Dual-Path Arithmetic
+
+### What It Does
+
+Detects at runtime whether the EAE (Extended Arithmetic Element) hardware is present, then multiplies two 12-bit unsigned integers using the appropriate path. The test inputs are `MLTPLR = 0123` (83 decimal) and `MLTPCD = 0012` (10 decimal). The program halts with `RESULT = 01476` (830 decimal) regardless of which path ran. The sentinel `EAEFND = 0001` confirms the EAE path was taken; `EAEFND = 0000` indicates the software path.
+
+Detection proceeds in two stages. The first probes for the MQ register using `MQL` and `MQA`: load `7777` into AC, execute `MQL` (MQ ← AC, AC ← 0), then `MQA` (AC ← AC OR MQ). If MQ is absent the result is 0 and execution falls to the software path immediately. The second stage probes for full EAE multiply hardware: load MQ = 1, execute `MUY` with operand `7001`. If EAE is present, `MUY` computes 1 × 7001 = 7001, leaves AC = 0, and advances PC past the operand word. If EAE is absent, `MUY` is a no-op, the operand word `7001` executes as `IAC`, and AC = 1. `SZA` distinguishes the two outcomes.
+
+The EAE multiply path uses `MQL` to load the multiplier into MQ, then patches the word after `MUY` at runtime with the multiplicand via `DCA MLPWRD`, then executes `MUY`. `MQA` retrieves the 12-bit product. The software path implements binary long multiplication by shift-and-add: for each bit of the multiplier from LSB to MSB, if the bit is 1 the current multiplicand is added to the running result via `JMS ADDVAL`. Both values are shifted one position per iteration (multiplier right, multiplicand left) and the loop exits when the multiplier shifts to 0.
+
+### Implementation Rationale
+
+**Two-stage detection.** The MQL+MQA probe and the MUY probe address different hardware. On pre-/E machines, MQ is an EAE register and neither MQL nor MUY works without the option board. On PDP-8/E and later, MQ became part of the base CPU while EAE arithmetic remained optional. The first probe screens for MQ presence; the second probes for full multiply hardware. This separation ensures the program never executes `MUY` on a machine that lacks even MQ, which could produce undefined behavior.
+
+**The MUY operand word as a dual-purpose canary.** The word `7001` following `MUY` serves two roles simultaneously. With EAE present it is consumed as the multiply operand; PC skips over it and `SZA` sees AC = 0. Without EAE, `MUY` is a no-op, `7001` executes as `IAC`, and `SZA` sees AC = 1. The value `7001` was chosen specifically because it decodes as `IAC` — a Group 1 OPR with no memory access, no Link involvement, and a single well-defined side effect. Any value ≤ `7777` works as a multiplier, but `7001` is the cleanest canary because its instruction-mode behavior is completely predictable.
+
+**Self-modifying MUY operand.** `MUY` reads its operand from the word immediately following it in memory. The multiplicand is not known at assembly time — it lives in the variable `MLTPCD`. The idiom `DCA MLPWRD` (storing the current multiplicand into the word after `MUY`) followed by the `MUY` / `MLPWRD, 0` pair is standard PDP-8 self-modification: the assembler emits zero at `MLPWRD`, the `DCA` patches it at runtime, and execution falls through with the correct operand in place.
+
+**`CLL` placement in the software multiply loop.** After `RAR` shifts the multiplier right, Link contains the bit rotated out of the multiplier. `CLL` discards it before `RAL` shifts the multiplicand left. Without this `CLL`, the bit shifted out of the multiplier would be rotated into the multiplicand's LSB, producing an incorrect result. The `CLL` is placed at the one precise point where its effect is needed — between the two rotate operations — not at the loop top, because the loop-top `CLA CLL` already clears Link for the multiplier-test phase. Duplicating it at the top of the shift phase would be redundant for the first iteration; placing it in the loop is the minimum necessary.
+
+**SIMH limitation.** Open SIMH 4.1 has a confirmed bug: the `set cpu noeae` configuration flag does not prevent EAE instructions from executing. The MQL and MQA subfunctions execute unconditionally regardless of the flag (they are decoded before the NOEAE guard in `pdp8_cpu.c`). The guard itself is also ineffective: it sets `reason = stop_inst = 0`, which is a no-op that allows the while loop to continue, and the EAE dispatch executes normally. As a result, the no-EAE branch of this program cannot be exercised under SIMH. The code is correct for real hardware; the limitation is documented inline with a reference to the filed bug report.
+
+### Non-Intuitive Points for Beginners
+
+- **MQL+MQA detects the MQ register, not the full EAE.** On PDP-8/E and later, MQ is always present and the probe always succeeds — even without the EAE option board installed. The MUY probe is required for a complete detection sequence on /E-class machines. Using only the MQL+MQA probe on a /E without EAE leads to executing `MUY` on hardware that cannot run it.
+- **`MUY` operand word must be in executable memory, patched before use.** The operand is not an address — it is an immediate value read from the word following the `MUY` instruction in the code stream. Supplying a dynamic operand requires self-modification: store the value into the word at runtime before `MUY` executes. The assembly-time placeholder is `0`.
+- **`SZA` after `MUY` tests AC, not MQ.** After a successful `MUY`, AC holds the upper 12 bits of the 24-bit product and MQ holds the lower 12 bits. For inputs where the product fits in 12 bits AC is 0. The detection probe exploits this: success leaves AC = 0; the `IAC` canary leaves AC = 1. Testing MQ instead of AC would not distinguish the two cases for this probe.
+- **`MQL` clears AC as a side effect of the move, not via CLA.** The MQL subfunction (bit 4 of Group 3 OPR) stores AC into MQ and zeroes AC as part of its own action. This is independent of the CLA bit (bit 7). The code loads `1` into AC, then `MQL` both moves it to MQ and clears AC in a single instruction, so no explicit `CLA` is needed before `MUY`.
+- **The no-EAE code path cannot be validated under SIMH.** `set cpu noeae` updates the configuration display but has no effect on instruction execution in Open SIMH 4.1. This is a confirmed bug (see inline comment). The software multiply path is correct by construction and has been manually traced, but machine verification requires real hardware.
+
+### Key Learning Points
+
+- EAE detection requires two probes: MQL+MQA for MQ register presence, and MUY with a known operand for full EAE multiply hardware. The two have been architecturally separate since the PDP-8/E.
+- The word following `MUY` is an inline immediate operand consumed by the instruction. Dynamic operands require self-modification: store the value into the word before `MUY` executes; initialize the word to `0` at assembly time.
+- In binary shift-and-add multiply, the `CLL` between the multiplier right-rotate and the multiplicand left-rotate is required to prevent the shifted-out multiplier bit from contaminating the multiplicand shift. It belongs at that precise point, not as a blanket loop-top clear.
+- Naming a sentinel variable (`EAEFND`) and writing a non-zero value to it when a code path executes is a lightweight front-panel debugging technique: the taken path is visible after `HLT` without a history trace or debugger.

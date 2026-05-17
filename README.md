@@ -26,7 +26,7 @@ Style rules, idioms, and code review standards are in [Style_and_Conventions.md]
 | [2](Chapter%202/) | Control Flow and Subroutines | ✅ Complete |
 | [3](Chapter%203/) | Rotates, Shifts, and Bit Logic | ✅ Complete |
 | [4](Chapter%204/) | Multi-Word Arithmetic | ✅ Complete |
-| [5](Chapter%205/) | OS/8 and Extended Memory | ⏳ In progress |
+| [5](Chapter%205/) | OS/8 and Extended Memory | ✅ Complete |
 | [6](Chapter%206/) | I/O Programming (TTY, PTR, PTP) | 🔲 Not started |
 | [7](Chapter%207/) | File Formats and Program Lifecycle | 🔲 Not started |
 | [8](Chapter%208/) | OS/8 Tools and Workflow | 🔲 Not started |
