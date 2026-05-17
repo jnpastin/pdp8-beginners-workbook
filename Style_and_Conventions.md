@@ -167,16 +167,16 @@ PAL8 places auto-generated literals at the **high end of the current page** (nea
 Programs running under OS/8 must exit cleanly:
 
 ```pal8
-        HLT              / pause for front-panel inspection (optional but good practice)
-        CIF CDF  00      / restore to field 0
-        JMP I  (7600)    / return to OS/8 monitor
+        HLT			/ALLOW EXAMINATION FOR SENTINELS
+        CIF CDF	0		/RESTORE BOTH FIELDS TO 0
+        JMP I	(7600)		/RETURN TO OS/8 MONITOR
 ```
 
 - `HLT` before the exit gives an opportunity to inspect AC, Link, and memory from the front panel.
 - `CIF CDF 00` must come before the `JMP I (7600)`, not after.
 - **Chapter dependency:** `CIF CDF 00` is required only once the workbook introduces extended memory and field management (Chapter 5+). Chapters 1–4 exercises run entirely in field 0 and never alter IF or DF, so the obligation does not apply — `HLT` / `JMP I (7600)` is the correct and complete exit for those chapters. Do not flag the absence of `CIF CDF` in Chapter 1–4 reviews.
 - Never fall off the end of code into data words — always terminate every code path explicitly.
-- `.EXIT` is **not** supported by OS/8 PAL8. The correct idiom is `JMP I (7600` — the `(` allocates a literal containing `7600` in the page pool and generates an indirect jump through it. This is equivalent to what a cross-assembler `.EXIT` directive would emit.
+- `.EXIT` is **not** supported by OS/8 PAL8. The correct idiom is `JMP I (7600)` — the `(` allocates a literal containing `7600` in the page pool and generates an indirect jump through it. This is equivalent to what a cross-assembler `.EXIT` directive would emit.
 
 ---
 
@@ -231,8 +231,8 @@ Do not add instructions from habit without understanding their purpose. Example:
 OS/8 hands control to user programs with IF=0, DF=0. The obligation is to restore these before returning:
 
 ```pal8
-        CIF CDF  00      /RESTORE BOTH FIELDS TO 0
-        JMP I    (7600)  /RETURN TO OS/8 MONITOR
+        CIF CDF	0		/RESTORE BOTH FIELDS TO 0
+        JMP I	(7600)		/RETURN TO OS/8 MONITOR
 ```
 
 - Use `CIF CDF` (not just `CIF`) — both fields must be reset.
