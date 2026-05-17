@@ -1,10 +1,10 @@
-# Chapter 17 — Program Architecture
+# Chapter 18 — Debugging and Failure Analysis
 
 ## Goals
 
-- Apply fields, overlays, and subroutine conventions coherently
-- Separate code, data, and OS interface regions
-- Design maintainable PDP-8 programs
+- Recover from real PDP-8 program failures
+- Apply a systematic diagnostic workflow
+- Use front-panel and instruction-level tools effectively
 
 ---
 

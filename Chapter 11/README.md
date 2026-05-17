@@ -1,10 +1,10 @@
-# Chapter 11 — USR Calls (OS/8 System Interface)
+# Chapter 12 — File I/O and Buffers
 
 ## Goals
 
-- Call OS/8 system services via `JMS I (7600)`
-- Understand parameter block layout
-- Maintain correct IF/DF state around USR calls
+- Read and write files via OS/8
+- Manage buffers correctly in memory
+- Understand binary vs. ASCII data handling
 
 ---
 

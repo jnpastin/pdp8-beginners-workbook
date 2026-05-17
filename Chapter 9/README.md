@@ -1,10 +1,10 @@
-# Chapter 9 — Loader and Multi-File Programs
+# Chapter 10 — Indirect Addressing and Control Flow Pitfalls
 
 ## Goals
 
-- Build programs from multiple source files
-- Understand how the loader merges modules
-- Coordinate symbols across files
+- Understand the most common PDP-8 control-flow bugs
+- Know precisely when IF vs. DF applies
+- Anticipate and avoid CIF timing hazards
 
 ---
 

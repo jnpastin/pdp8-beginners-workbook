@@ -1,10 +1,10 @@
-# Chapter 13 — Overlays (Memory Optimization)
+# Chapter 14 — Device Handlers (Conceptual and Applied)
 
 ## Goals
 
-- Structure programs larger than one field
-- Load code segments on demand via USR
-- Understand the performance cost of overlays
+- Understand what a device handler is and how OS/8 invokes it
+- Relate IOT instructions to handler calls
+- Know how to use (not write) a device handler
 
 ---
 

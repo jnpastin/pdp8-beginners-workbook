@@ -1,10 +1,10 @@
-# Chapter 16 — Performance and Design Tradeoffs
+# Chapter 17 — Program Architecture
 
 ## Goals
 
-- Make informed design decisions based on resource constraints
-- Understand the relative cost of different memory strategies
-- Choose between fields, overlays, and single-segment designs consciously
+- Apply fields, overlays, and subroutine conventions coherently
+- Separate code, data, and OS interface regions
+- Design maintainable PDP-8 programs
 
 ---
 

@@ -114,50 +114,30 @@
 
 ---
 
-### Chapter 8 – OS/8 Tools and Workflow
-
-**Goals**
-- Master the OS/8 command environment and standard toolchain
-- Use PIP, PAL, LOAD/SAVE, TECO, and CCL fluently
-- Understand how chaining composes tools into workflows
-
-**Concepts**
-- CCL (command decoder): how `.R PAL PROG` expands
-- PIP: file copy, rename, delete, directory management
-- PAL: assembler invocation, switches, and listing options
-- LOAD / SAVE: linking and image creation workflow
-- EDIT / TECO: creating and editing source files
-- CHAIN: how OS/8 tools hand off to one another (PAL → CREF, CHAIN vs. return)
-
-**Exercises**
-1. Navigate OS/8: use DIR, PIP to manage files, DATE, and basic monitor commands
-2. Create a source file with TECO or EDIT; assemble it; inspect the listing and symbol table
-3. Execute the complete workflow: PAL → LOAD → SAVE → RUN; modify a source line and rebuild
-4. Build a two-stage chaining workflow (e.g., PAL automatically invoking CREF)
-
----
-
-### Chapter 9 – Loader and Multi-File Programs
+### Chapter 8 – Loader, Multi-File Programs, and Chaining
 
 **Goals**
 - Build programs from multiple source files
 - Understand how the loader merges modules
 - Coordinate symbols across files
+- Use CHAIN to compose multi-step build workflows
 
 **Concepts**
 - Multi-file PAL invocation: `PAL MAIN,UTIL`
 - Loader module merging and address assignment
 - Shared symbols and cross-file references
 - Library-like patterns via file inclusion
+- CHAIN: how OS/8 tools hand off to one another (PAL → CREF, CHAIN vs. return)
 
 **Exercises**
 1. Split an existing exercise into two files (main + utility); assemble and load both
 2. Resolve a cross-file symbol conflict; understand the error and fix it
 3. Build a three-module program with a shared data region
+4. Build a two-stage chaining workflow (e.g., PAL automatically invoking CREF on success)
 
 ---
 
-### Chapter 10 – Indirect Addressing and Control Flow Pitfalls
+### Chapter 9 – Indirect Addressing and Control Flow Pitfalls
 
 **Goals**
 - Understand the most common PDP-8 control-flow bugs
@@ -178,7 +158,7 @@
 
 ---
 
-### Chapter 11 – USR Calls (OS/8 System Interface)
+### Chapter 10 – USR Calls (OS/8 System Interface)
 
 **Goals**
 - Call OS/8 system services via `JMS I (7600)`
@@ -199,7 +179,7 @@
 
 ---
 
-### Chapter 12 – File I/O and Buffers
+### Chapter 11 – File I/O and Buffers
 
 **Goals**
 - Read and write files via OS/8
@@ -219,7 +199,7 @@
 
 ---
 
-### Chapter 13 – Overlays (Memory Optimization)
+### Chapter 12 – Overlays (Memory Optimization)
 
 **Goals**
 - Structure programs larger than one field
@@ -230,7 +210,7 @@
 - Root vs. overlay code regions
 - Overlay region address conventions
 - USR-driven loading of overlay segments at runtime
-- Relationship between overlays and the USR mechanism (Chapter 11)
+- Relationship between overlays and the USR mechanism (Chapter 10)
 - I/O cost of overlay use vs. field cost of CIF
 
 **Exercises**
@@ -240,7 +220,7 @@
 
 ---
 
-### Chapter 14 – Device Handlers (Conceptual and Applied)
+### Chapter 13 – Device Handlers (Conceptual and Applied)
 
 **Goals**
 - Understand what a device handler is and how OS/8 invokes it
@@ -260,7 +240,7 @@
 
 ---
 
-### Chapter 15 – File System and Storage Concepts
+### Chapter 14 – File System and Storage Concepts
 
 **Goals**
 - Reason about OS/8 disk behavior and file placement
@@ -280,7 +260,7 @@
 
 ---
 
-### Chapter 16 – Performance and Design Tradeoffs
+### Chapter 15 – Performance and Design Tradeoffs
 
 **Goals**
 - Make informed design decisions based on resource constraints
@@ -307,7 +287,7 @@
 
 ---
 
-### Chapter 17 – Program Architecture
+### Chapter 16 – Program Architecture
 
 **Goals**
 - Apply fields, overlays, and subroutine conventions coherently
@@ -327,7 +307,7 @@
 
 ---
 
-### Chapter 18 – Debugging and Failure Analysis
+### Chapter 17 – Debugging and Failure Analysis
 
 **Goals**
 - Recover from real PDP-8 program failures
@@ -349,22 +329,22 @@
 
 ---
 
-### Chapter 19 – Capstone: Integrated Program
+### Chapter 18 – Capstone: Integrated Program
 
 **Goal**
 Demonstrate full system-level competency by building a program that exercises everything learned.
 
 **Requirements**
 The program must:
-- Use multiple source files (Chapter 9)
-- Use DF or CIF correctly for extended memory (Chapters 5, 10)
-- Call OS/8 via USR for at least one operation (Chapter 11)
-- Perform file I/O with proper buffer management (Chapter 12)
+- Use multiple source files (Chapter 8)
+- Use DF or CIF correctly for extended memory (Chapters 5, 9)
+- Call OS/8 via USR for at least one operation (Chapter 10)
+- Perform file I/O with proper buffer management (Chapter 11)
 - Exit correctly and unconditionally (Chapter 5)
-- Demonstrate structured design with a documented memory layout (Chapter 17)
+- Demonstrate structured design with a documented memory layout (Chapter 16)
 
 **Optional challenge:**
-Include an intentional bug, diagnose it using the Chapter 18 methodology, and document the fix.
+Include an intentional bug, diagnose it using the Chapter 17 methodology, and document the fix.
 
 **Outcome**
 Student can design, build, debug, and ship a real PDP-8 program.
@@ -391,7 +371,6 @@ Student can design, build, debug, and ship a real PDP-8 program.
 - 🔲 Chapter 16 not started
 - 🔲 Chapter 17 not started
 - 🔲 Chapter 18 not started
-- 🔲 Chapter 19 not started
 
 ---
 
@@ -430,6 +409,58 @@ When reviewing any exercise solution, evaluate on all of the following axes:
 
 Personal learning repository. 
 Code and notes may be reused freely unless otherwise stated.
+
+---
+
+## Appendix A — OS/8 Tools Quick Reference
+
+Reference for OS/8 commands and toolchain options. These tools are used from Chapter 1 onward; this appendix documents flags and options for lookup rather than instruction.
+
+### Monitor Commands
+
+| Command | Effect |
+|---|---|
+| `DIR [device:]` | List directory of device (default DSK:) |
+| `DATE MMDDYY` | Set system date |
+| `R progname` | Run a saved program via CCL expansion |
+| `LOAD file,file,...` | Load .BN files into memory |
+| `SAVE dev: name [start] [low-high]` | Save memory range as .SV file |
+| `GET file` | Load .SV file without running it |
+| `START [addr]` | Start execution at address |
+
+### CCL Expansion
+
+`.R PAL PROG` expands to `PAL PROG.PA<PROG.LS` via CCL. Running `.R PROGRAM` is equivalent to manually setting I/O assignments and calling `R PROGRAM`. Customize `CCL.SV` with TECO macros to define aliases.
+
+### PIP
+
+| Command | Effect |
+|---|---|
+| `PIP DST:=SRC:` | Copy file |
+| `PIP file1,file2` | Concatenate files |
+| `PIP /L` | List directory with sizes |
+| `PIP file /D` | Delete file |
+| `PIP DST:=SRC: /R` | Rename |
+
+### PAL8 Switches
+
+| Switch | Effect |
+|---|---|
+| `/L` | Generate listing (.LS) |
+| `/S` | Include symbol table in listing |
+| `/C` | Suppress listing (assemble only) |
+
+Example: `PAL PROG/L<PROG` assembles PROG.PA, writes PROG.BN and PROG.LS.
+
+### LOAD / SAVE Workflow
+
+1. `LOAD MAIN,UTIL` — loads MAIN.BN and UTIL.BN, merges modules
+2. `SAVE DSK: PROG 200 200-377` — saves field 0 page 1 as PROG.SV
+3. `R PROG` — runs PROG.SV
+
+### CHAIN
+
+`CHAIN` transfers control to another .SV program, preserving the current memory state below the chain point. OS/8 tools use this to implement pipelines (PAL → CREF, etc.). Unlike `JMP I (7600)`, `CHAIN` does not return to the monitor — it hands off to the named program unconditionally. See Chapter 8 for applied use.
 
 ---
 

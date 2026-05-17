@@ -1,10 +1,10 @@
-# Chapter 15 — File System and Storage Concepts
+# Chapter 16 — Performance and Design Tradeoffs
 
 ## Goals
 
-- Reason about OS/8 disk behavior and file placement
-- Understand directory structure and block allocation
-- Work confidently with logical devices
+- Make informed design decisions based on resource constraints
+- Understand the relative cost of different memory strategies
+- Choose between fields, overlays, and single-segment designs consciously
 
 ---
 

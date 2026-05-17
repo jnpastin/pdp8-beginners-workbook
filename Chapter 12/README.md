@@ -1,10 +1,10 @@
-# Chapter 12 — File I/O and Buffers
+# Chapter 13 — Overlays (Memory Optimization)
 
 ## Goals
 
-- Read and write files via OS/8
-- Manage buffers correctly in memory
-- Understand binary vs. ASCII data handling
+- Structure programs larger than one field
+- Load code segments on demand via USR
+- Understand the performance cost of overlays
 
 ---
 

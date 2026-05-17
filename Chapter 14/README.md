@@ -1,10 +1,10 @@
-# Chapter 14 — Device Handlers (Conceptual and Applied)
+# Chapter 15 — File System and Storage Concepts
 
 ## Goals
 
-- Understand what a device handler is and how OS/8 invokes it
-- Relate IOT instructions to handler calls
-- Know how to use (not write) a device handler
+- Reason about OS/8 disk behavior and file placement
+- Understand directory structure and block allocation
+- Work confidently with logical devices
 
 ---
 
