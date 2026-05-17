@@ -66,7 +66,7 @@
 **Exercises**
 1. ✅ OS/8‑safe program exit 
 2. ✅ Field‑safe subroutine callable from field 0 
-3. EAE detection with dual‑path arithmetic 
+3. ✅ EAE detection with dual‑path arithmetic 
 
 ---
 
@@ -357,7 +357,7 @@ Student can design, build, debug, and ship a real PDP-8 program.
 - ✅ Chapter 2 complete (exercises 1–3, code reviewed and all standards met)
 - ✅ Chapter 3 complete (exercises 1–3)
 - ✅ Chapter 4 complete (exercises 1–3)
-- ⏳ Chapter 5 in progress (exercises 1–2 complete, exercise 3 remaining)
+- ✅ Chapter 5 complete (exercises 1–3)
 - 🔲 Chapter 6 not started
 - 🔲 Chapter 7 not started
 - 🔲 Chapter 8 not started
