@@ -1,0 +1,154 @@
+             /
+             / PDP-8 WORKBOOK
+             / CHAPTER 6
+             / EXERCISE 1
+             / PAL8 ASSEMBLY
+             / JEREMY PASTIN
+             / VERSION 1.0 MAY 17, 2026
+             /
+       0000          FIELD 0
+       0200          *0200
+             /
+             / GOAL: CHARACTER INPUT WITH ECHO
+
+
+
+
+
+00200  7300  TOP,    CLA CLL
+00201  1301          TAD     MESG    /LOAD THE START OF THE MESSAGE
+00202  3010          DCA     CURCHR  /WILL INCREMENT TO FIRST CHAR
+
+             /OUTPUT TO TTY
+00203  5206          JMP     FRSTCH  /FIRST CHARACTER JUST GETS DUMPED
+00204  6041  STROUT, TSF             /CHECK IF THE FLAG IS SET
+00205  5204          JMP     STROUT  /GETS SKIPPED IF THE FLAG IS SET
+00206  1410  FRSTCH, TAD I   CURCHR
+00207  7450          SNA             /CHECK FOR SENTINEL
+00210  5214          JMP     CHRIN
+00211  6046          TLS             /SEND CHAR, CLEAR FLAG
+00212  7200          CLA             /CLEAR THE AC AFTER PRINTING
+00213  5204          JMP     STROUT
+
+00214  7300  CHRIN,  CLA CLL
+00215  6031          KSF
+00216  5214          JMP     CHRIN   /WAIT FOR THE KEYBOARD FLAG
+00217  6036          KRB
+00220  3300          DCA     CHAR
+00221  4243          JMS     VALCHR
+00222  1377          TAD     (0215)  /CARRIAGE RETURN
+00223  3300          DCA     CHAR
+00224  4233          JMS     CHROUT
+00225  1376          TAD     (0212)  /LINEFEED
+00226  3300          DCA     CHAR
+00227  4233          JMS     CHROUT
+00230  5200          JMP     TOP
+
+00231  6203  OS8RET, CIF CDF 0
+00232  5775          JMP I   (7600)
+
+
+             /CHROUT
+             /OUTPUT A SINGLE CHARACTER TO THE TTY
+             /ENTRY: CHAR    ASCII CODE FOR THE CHARACTER TO BE OUTPUT
+             /EXIT:  NONE
+00233  0000  CHROUT, 0
+00234  6041  FLGCHK, TSF
+00235  5234          JMP     FLGCHK
+00236  7200          CLA
+00237  1300          TAD     CHAR
+00240  6046          TLS
+00241  7200          CLA
+00242  5633          JMP I   CHROUT
+
+             /VALCHR
+             /VALIDATE INPUT ON A CHAR, THEN OUTPUT IT TO TTY
+             /       1) CONVERT LOWERCASE TO UPPERCASE
+             /       2) CHECK FOR Q TO ESCAPE
+             /ENTRY: CHAR    ASCII CODE FOR THE CHARACTER TO VALIDATE
+             /EXIT:  CHAR    NORMALIZED ASCII CHARACTER
+00243  0000  VALCHR, 0
+00244  1374          TAD     (0141)  /ASCII LOWERCASE "A"
+00245  1373          TAD     (0200)  /OFFSET TO DEC CHARACTER CODES
+00246  7041          CIA
+00247  1300          TAD     CHAR
+00250  7510          SPA             /POSITIVE AC -> LOWERCASE LETTER
+00251  5257          JMP     UCASE
+00252  7200          CLA
+00253  1372          TAD     (0040)  /32.  OFFSET BETWEEN CAPS & LOWER
+00254  7041          CIA
+00255  1300          TAD     CHAR
+00256  3300          DCA     CHAR    /LETTERS SHOULD BE CAPS NOW
+00257  7300  UCASE,  CLA CLL
+00260  1371          TAD     (0321)  /TEST TO SEE IF CHARACTER WAS Q
+00261  7041          CIA
+00262  1300          TAD     CHAR
+00263  7450          SNA             /IF IT WAS JUMP BACK TO OS/8
+00264  5231          JMP     OS8RET
+00265  4233          JMS     CHROUT
+00266  5643          JMP I   VALCHR
+
+
+00371  0321
+00372  0040
+00373  0200
+00374  0141
+00375  7600
+00376  0212
+00377  0215
+       0010  *0010
+00010  0000  CURCHR, 0
+       0300  *0300
+00300  0000  CHAR,   0
+00301  0301  MESG,   .
+00302  0311          "I
+00303  0316          "N
+00304  0320          "P
+00305  0325          "U
+00306  0324          "T
+00307  0240          "
+00310  0301          "A
+00311  0240          "
+00312  0303          "C
+00313  0310          "H
+00314  0301          "A
+00315  0322          "R
+00316  0301          "A
+00317  0303          "C
+00320  0324          "T
+00321  0305          "E
+00322  0322          "R
+00323  0240          "
+00324  0250          "(
+00325  0321          "Q
+00326  0251          ")
+00327  0240          "
+00330  0324          "T
+00331  0317          "O
+00332  0240          "
+00333  0321          "Q
+00334  0325          "U
+00335  0311          "I
+00336  0324          "T
+00337  0272          ":
+00340  0240          "
+00341  0000          0
+             $
+
+
+CHAR   0300
+CHRIN  0214
+CHROUT 0233
+CURCHR 0010
+FLGCHK 0234
+FRSTCH 0206
+MESG   0301
+OS8RET 0231
+STROUT 0204
+TOP    0200
+UCASE  0257
+VALCHR 0243
+
+
+ERRORS DETECTED: 0
+LINKS GENERATED: 0
