@@ -84,11 +84,11 @@
 - Device independence assumptions
 
 **Exercises**
-1. Character output to TTY using polling 
-2. Character input with echo 
-3. Line‑buffered input routine 
-4. Read a block from PTR into memory 
-5. Punch memory contents to PTP 
+1. ✅ Character output to TTY using polling 
+2. ✅ Character input with echo 
+3. ✅ Line‑buffered input routine 
+4. ✅ Read a block from PTR into memory 
+5. ✅ Punch memory contents to PTP 
 
 ---
 
