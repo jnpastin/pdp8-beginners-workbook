@@ -358,7 +358,7 @@ Student can design, build, debug, and ship a real PDP-8 program.
 - ✅ Chapter 3 complete (exercises 1–3)
 - ✅ Chapter 4 complete (exercises 1–3)
 - ✅ Chapter 5 complete (exercises 1–3)
-- 🔲 Chapter 6 not started
+- ✅ Chapter 6 complete (exercises 1–5)
 - 🔲 Chapter 7 not started
 - 🔲 Chapter 8 not started
 - 🔲 Chapter 9 not started
