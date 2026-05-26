@@ -1,7 +1,7 @@
              /
              / PDP-8 WORKBOOK
              / CHAPTER 6
-             / EXERCISE 1
+             / EXERCISE 2
              / PAL8 ASSEMBLY
              / JEREMY PASTIN
              / VERSION 1.0 MAY 17, 2026
@@ -20,7 +20,7 @@
 00202  3010          DCA     CURCHR  /WILL INCREMENT TO FIRST CHAR
 
              /OUTPUT TO TTY
-00203  5206          JMP     FRSTCH  /FIRST CHARACTER JUST GETS DUMPED
+00203  5206          JMP     FRSTCH  /FLAG STARTS CLEAR SEND FIRST BLIND
 00204  6041  STROUT, TSF             /CHECK IF THE FLAG IS SET
 00205  5204          JMP     STROUT  /GETS SKIPPED IF THE FLAG IS SET
 00206  1410  FRSTCH, TAD I   CURCHR
@@ -36,9 +36,9 @@
 00217  6036          KRB
 00220  3300          DCA     CHAR
 00221  4241          JMS     VALCHR
-00222  1377          TAD     (0012)  /LINE FEED
+00222  1377          TAD     (0015)  /LINE FEED
 00223  4231          JMS     CHROUT
-00224  1376          TAD     (0015)  /CARRIAGE RETURN
+00224  1376          TAD     (0012)  /CARRIAGE RETURN
 00225  4231          JMS     CHROUT
 00226  5200          JMP     TOP
 
