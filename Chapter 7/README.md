@@ -43,7 +43,7 @@ A .BN file consists of variable-length blocks, each beginning with a word count 
 
 ### Exercise 1 — Inspect the .BN Loader Format
 
-Write a minimal program (a counter or trivial loop), assemble it with PAL, and examine the resulting .BN file using PIP or a dump utility. Identify:
+Write a minimal program (a counter or trivial loop), assemble it with PAL, and examine the resulting .BN file using FUTIL. Identify:
 - How many blocks are present
 - The load address encoded in each block
 - The content of each word vs. the expected assembled values from the .LS listing

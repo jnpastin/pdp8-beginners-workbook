@@ -1,0 +1,167 @@
+# Chapter 7 Exercise 1 – BN File Format
+
+---
+
+## Purpose
+
+Understand how the files generated for use by ABSLDR are structured.  In order to do this the file must be viewed at a machine code level and decoded. 
+
+---
+
+## OS/8 File Encoding
+
+### ASCII Files
+When OS/8 writes files to disk it encodes them in a unique format.  The PDP-8 uses a 12-bit word length, and the standard interface device was a Teletype ASR-33.  The ASR-33 has a paper tape punch and reader integrated into it, but it uses 8 level paper tape which means that words need to be spread across multiple bytes.  In this usage, "byte" refers to a single line of holes on a paper tape, 8 bits.  This formed the basis for all of the storage encoding.
+
+```
+       +---------------+------------------+
+WORD 1 |CHARACTER 3    |                  |
+       |BITS 0-3       |  CHARACTER 1     |
+       +---------------+------------------+
+WORD 2 |CHARACTER 3    |                  |
+       |BITS 4-7       |  CHARACTER 2     |
+       +---------------+------------------+
+       0              3 4                11
+```
+
+For example, the word `DOG` is represented by the ASCII characters 104, 117, and 107 in octal.  In the PDP-8 world, the 8th bit is always high for ASCII characters, so it is represented by 304, 317, 307.
+
+In order to properly encode this, it needs to be converted to binary, then the third character needs to be split.
+
+| Character | DEC ASCII Encoding | Binary Encoding |
+| --- | --- | --- |
+| D | 304 | 11 000 100 |
+| O | 317 | 11 001 111 |
+| G | 307 | 11 000 111 |
+
+The third character is then split in half `1100` and `0111` and combined with the other two characters:
+
+```
+       +----+--------+
+WORD 1 |1100|11000100|
+       +----+--------+
+WORD 2 |0111|11001111|
+       +----+--------+
+```
+
+This yields two words `6304` and `3717` in octal.  These two words are what would be written to disk.  
+
+### Binary Files
+
+Binary files are written in a similar manner, with each word being split into two bytes.  However, since words split into 6 bit nibbles easily, the remaining two bits are used for control.  There are 4 major components to each BN file:
+
+1. Leaders/Trailers - These are the only times that the most significant bit is set, all other bits remain unset.  They have no semantic meaning and are a holdover from paper tape.
+2. Origins - This is the only time that the second most significant bit is set, the remaining bits and the next word form the address that the loader will store data into memory at.  The second word does not have the second most significant bit set.
+3. Data - Each word is split into two bytes, the upper two bits in both words are unset.
+4. Checksum - When PAL assembles the program, it will calulcate a checksum.  When the loader reads the file, it will do the same.  If the two don't match, then an error is generated.
+
+Consider the following simple program:
+
+```
+*0200
+       CLA
+       IAC
+       DCA 0300
+```
+
+That would assemble to:
+
+```
+       0200  *0200
+00200  7200  CLA
+00201  7001  IAC
+00202  3300  DCA 0300
+```
+
+We would expect it to be stored on disk as a sequence of bytes:
+
+```
+200           /LEADER 
+102 000       /ORIGIN 0200
+072 000       /7200
+070 001       /7001
+033 000       /3300
+004 022       /CHECKSUM
+200           /TRAILER
+```
+
+Leaders and trailers appear multiple times, but have been ommitted here.  The actual file stored on disk looks like:
+
+```
+4200
+0200
+4200
+0200
+2200
+1200
+0000
+0102  
+1472
+4000
+0001
+0033
+4004
+0022
+4200
+0200  
+4200
+0200
+0200
+0232
+```
+
+It can be decoded by converting from octal to binary, then splitting into bytes:
+
+```
+
+﻿WORD	BINARY WORD		BINARY BYTE	OCTAL BYTE
+PAIR	PAIR			TRIAD		TRIAD
+----	----------------	----------	----------
+4200   100 010 000 000      10 000 000    200
+0200   000 010 000 000      10 000 000    200
+                            10 000 000    200
+
+4200   100 010 000 000      10 000 000    200
+0200   000 010 000 000      10 000 000    200
+                                          200
+
+2200   010 010 000 000      10 000 000    200
+1200   001 010 000 000      10 000 000    200
+                            01 000 010    102
+
+0000   000 000 000 000      00 000 000    000
+0102   000 001 000 010      01 000 010    102
+                            00 000 000    000
+
+1472   001 100 111 010      00 111 010    072
+4000   100 000 000 000      00 000 000    000
+                            00 111 000    070
+
+0001   000 000 000 001      00 000 001    001
+0033   000 000 011 011      00 011 011    033
+                            00 000 000    000
+
+4004   100 000 000 100      00 000 100    004
+0022   000 000 010 010      00 010 010    022
+                            10 000 000    200
+
+4200   100 010 000 000      10 000 000    200
+0200   000 010 000 000      10 000 000    200
+                            10 000 000    200
+
+4200   100 010 000 000      10 000 000    200
+0200   000 010 000 000      10 000 000    200
+                            10 000 000    200
+
+0200   000 010 000 000      10 000 000    200
+0232   000 010 011 010      10 011 010    232
+                            00 000 000    000
+
+0000   000 000 000 000      00 000 000    000
+0000   000 000 000 000      00 000 000    000
+
+```
+
+There are several leaders, followed by the origin twice, then the machine code, checksum, several trailers, and an EOF (232)
+
+The rest of the files in this directory show a more complex (slightly) encoding and decoding.
