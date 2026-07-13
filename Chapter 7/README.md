@@ -35,7 +35,7 @@ Each command does one specific thing. SAVE knows nothing about source code — i
 
 ### Loader Block Structure (.BN)
 
-A .BN file consists of variable-length blocks, each beginning with a word count and load address, followed by that many data words. The LOAD command uses the load address in each block — not the current PC — to determine where to deposit the words. Multiple blocks in one file can load to non-contiguous addresses. A termination block (word count of zero) ends the file.
+A .BN file consists of variable-length blocks of several different data types. The LOAD command uses the load address (origin) in each block — not the current PC — to determine where to deposit the words. Multiple blocks in one file can load to non-contiguous addresses. A termination block ends the file.
 
 ---
 
