@@ -72,8 +72,8 @@ Binary files are written in a similar manner, with each word being split into tw
 | Data | 00 HHH HHH & 00 LLL LLL |
 | Checksum | 00 HHH HHH & 00 LLL LLL |
 
-[1] = Leaders and Trailers are only one byte
-[2] = Field definitions, `I` for instruction field and `D` for data field
+[1] = Leaders and Trailers are only one byte  
+[2] = Field definitions, `I` for instruction field and `D` for data field  
 [3] = `H` is used to represent the most signficant data bits, and `L` is used to represent the least signficant data bits.  
 
 #### Example
