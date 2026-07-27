@@ -21,6 +21,10 @@
 - ✅ Count from 1-10 and accumulate a sum
 - ✅ Rewrite the loop using auto-index registers
 
+See [Chapter 1 README](Chapter%201/README.md).
+
+---
+
 ### Chapter 2 - Control Flow and Subroutines
 
 **Goals**
@@ -39,6 +43,10 @@
 - ✅ Absolute-value subroutine
 - ✅ Compare two values (-1 / 0 / 1)
 - ✅ Nested subroutines and state-saving bug fix
+
+See [Chapter 2 README](Chapter%202/README.md).
+
+---
 
 ### Chapter 3 - Rotates, Shifts, and Bit Logic
 
@@ -59,6 +67,10 @@
 - ✅ Multiply by 10 without EAE
 - ✅ Implement an arithmetic right shift
 
+See [Chapter 3 README](Chapter%203/README.md).
+
+---
+
 ### Chapter 4 - Multi-Word Arithmetic
 
 **Goals**
@@ -78,6 +90,10 @@
 - ✅ Variable-length accumulation with overflow detection
 - ✅ Multi-word comparison routine
 
+See [Chapter 4 README](Chapter%204/README.md).
+
+---
+
 ### Chapter 5 - OS/8 and Extended Memory
 
 **Goals**
@@ -96,6 +112,10 @@
 - ✅ OS/8-safe program exit
 - ✅ Field-safe subroutine callable from field 0
 - ✅ EAE detection with dual-path arithmetic
+
+See [Chapter 5 README](Chapter%205/README.md).
+
+---
 
 ### Chapter 6 - I/O Programming (TTY, PTR, PTP)
 
@@ -119,7 +139,16 @@
 - ✅ Read a block from PTR into memory
 - ✅ Punch memory contents to PTP
 
+See [Chapter 6 README](Chapter%206/README.md).
+
+---
+
 ### Chapter 7 - OS/8 Tools and Development Workflow
+
+**Goals**
+- Become fluent with the OS/8 development cycle
+- Understand what each tool consumes and produces
+- Distinguish source, binary, memory image, and executable image
 
 **Concepts**
 - .PA
@@ -128,17 +157,24 @@
 - .SV
 - PAL
 - CREF
-- LOAD/SAVE
+- LOAD and SAVE
 
 **Exercises**
 - 🔲 Trace a program through PAL → LOAD → SAVE → RUN
 - 🔲 Demonstrate source, memory image, and saved image divergence
 - 🔲 Use PAL, CREF, PIP, DIR, and FUTIL to inspect a build
 
-Advanced:
+**Advanced Exercises**
 - 🔲 Automate the workflow with SUBMIT
 
+---
+
 ### Chapter 8 - Command Decoder and Program Invocation
+
+**Goals**
+- Understand how OS/8 launches programs
+- Understand command decoding and CCL expansion
+- Build repeatable command-driven workflows
 
 **Concepts**
 - Keyboard monitor
@@ -151,9 +187,16 @@ Advanced:
 **Exercises**
 - 🔲 Analyze several common command expansions
 - 🔲 Compare direct execution versus R invocation
-- 🔲 Build an automated command-driven build workflow
+- 🔲 Build an automated command-driven workflow
+
+---
 
 ### Chapter 9 - Loader and Multi-Module Programs
+
+**Goals**
+- Build larger programs from multiple source files
+- Understand loader behavior
+- Manage module boundaries and shared data
 
 **Concepts**
 - Multi-file assembly
@@ -167,7 +210,14 @@ Advanced:
 - 🔲 Build a three-module program with shared data
 - 🔲 Diagnose and repair loader and symbol conflicts
 
+---
+
 ### Chapter 10 - PAL8 Advanced Source Techniques
+
+**Goals**
+- Use PAL8 macros effectively
+- Learn conditional assembly
+- Improve source maintainability
 
 **Concepts**
 - Macros
@@ -181,7 +231,14 @@ Advanced:
 - 🔲 Compare macro and JMS implementations
 - 🔲 Generate multiple builds from one source tree
 
+---
+
 ### Chapter 11 - OS/8 Programming Model and Interfaces
+
+**Goals**
+- Understand the application-to-hardware stack
+- Learn runtime interfaces
+- Understand logical devices
 
 **Concepts**
 - Runtime interfaces
@@ -196,7 +253,14 @@ Advanced:
 - 🔲 Use file-oriented runtime interfaces
 - 🔲 Explore SYS:, DSK:, and device assignment
 
+---
+
 ### Chapter 12 - USR Calls
+
+**Goals**
+- Use OS/8 system services
+- Understand parameter blocks
+- Use FETCH, INQUIRE, and CHAIN
 
 **Concepts**
 - JMS I (7600)
@@ -211,10 +275,17 @@ Advanced:
 - 🔲 Use FETCH or INQUIRE
 - 🔲 CHAIN between two programs
 
-Advanced:
+**Advanced Exercises**
 - 🔲 Create a reusable field-safe USR wrapper
 
+---
+
 ### Chapter 13 - File I/O and Buffers
+
+**Goals**
+- Read and write OS/8 files
+- Manage buffers correctly
+- Handle binary and ASCII data
 
 **Concepts**
 - Buffer management
@@ -228,10 +299,17 @@ Advanced:
 - 🔲 Create and verify a generated output file
 - 🔲 Process an ASCII text file
 
-Advanced:
+**Advanced Exercises**
 - 🔲 Fixed-length record processing
 
+---
+
 ### Chapter 14 - File System, Devices, and Handlers
+
+**Goals**
+- Understand OS/8 storage concepts
+- Understand logical devices
+- Understand handlers well enough to use them
 
 **Concepts**
 - Directories
@@ -245,7 +323,14 @@ Advanced:
 - 🔲 Redirect logical devices and observe behavior
 - 🔲 Trace a file request through the handler stack
 
+---
+
 ### Chapter 15 - OS/8 Program Artifacts and Internals
+
+**Goals**
+- Understand OS/8 program artifacts
+- Understand LOAD versus SAVE
+- Gain foundational artifact knowledge
 
 **Concepts**
 - .PA
@@ -254,17 +339,25 @@ Advanced:
 - .SV
 - Loader records
 - Memory images
+- .EX (historical context)
 
 **Exercises**
 - 🔲 Follow a program through PA → LS → BN → SV
 - 🔲 Compare BN and SV representations
 - 🔲 Demonstrate exactly what SAVE captures
 
-Advanced:
+**Advanced Exercises**
 - 🔲 Decode BN records
 - 🔲 Decode SV structures
 
+---
+
 ### Chapter 16 - Performance and Design Tradeoffs
+
+**Goals**
+- Make informed design decisions
+- Understand resource costs
+- Compare memory-management approaches
 
 **Concepts**
 - CPU vs I/O costs
@@ -277,7 +370,14 @@ Advanced:
 - 🔲 Compare single-field, multi-field, and overlay designs
 - 🔲 Redesign a page-constrained program
 
+---
+
 ### Chapter 17 - Program Architecture
+
+**Goals**
+- Design maintainable PDP-8 software
+- Create memory maps and interfaces
+- Separate responsibilities cleanly
 
 **Concepts**
 - Memory maps
@@ -291,10 +391,17 @@ Advanced:
 - 🔲 Define module contracts
 - 🔲 Refactor a program to match the architecture
 
-Advanced:
+**Advanced Exercises**
 - 🔲 Design an overlay-capable architecture
 
+---
+
 ### Chapter 18 - Debugging and Failure Analysis
+
+**Goals**
+- Recover from real failures
+- Apply a systematic diagnostic method
+- Use PDP-8 debugging tools effectively
 
 **Concepts**
 - IF/DF debugging
@@ -308,11 +415,18 @@ Advanced:
 - 🔲 Diagnose a bad OS/8 return
 - 🔲 Diagnose a failure from a listing alone
 
-Advanced:
+**Advanced Exercises**
 - 🔲 Patch a program with ODT
 - 🔲 Reverse-engineer an unfamiliar routine
 
+---
+
 ### Chapter 19 - Capstone: Integrated Program
+
+**Goals**
+- Demonstrate practical PDP-8 competency
+- Integrate OS/8 services, file I/O, and architecture
+- Produce a maintainable finished program
 
 **Concepts**
 - Integration
