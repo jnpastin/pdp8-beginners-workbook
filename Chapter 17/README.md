@@ -1,11 +1,23 @@
-# Chapter 18 — Debugging and Failure Analysis
+# Chapter 17 - Program Architecture
+
+## Status
+
+- [ ] Not Started
 
 ## Goals
 
-- Recover from real PDP-8 program failures
-- Apply a systematic diagnostic workflow
-- Use front-panel and instruction-level tools effectively
+_To be completed._
 
----
+## Required Exercises
 
-> **Not yet written.** Exercises will be added when this chapter is reached.
+- [ ] Design a memory layout
+- [ ] Define module interfaces
+- [ ] Refactor an existing program architecture
+
+## Advanced Exercises
+
+- [ ] Design an overlay-capable architecture
+
+## Notes
+
+_Chapter notes, rationale, and learning points to be added._

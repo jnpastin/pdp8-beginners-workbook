@@ -118,7 +118,8 @@ Advanced internals are included only where they provide significant value.
 
 ## Advanced
 
-- ✅ PTR/PTP transfer utility
+- ✅ PTR input
+- ✅ PTP output
 
 ---
 

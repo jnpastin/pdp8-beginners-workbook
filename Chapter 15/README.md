@@ -1,11 +1,24 @@
-# Chapter 16 — Performance and Design Tradeoffs
+# Chapter 15 - OS/8 Program Artifacts and Internals
+
+## Status
+
+- [ ] Not Started
 
 ## Goals
 
-- Make informed design decisions based on resource constraints
-- Understand the relative cost of different memory strategies
-- Choose between fields, overlays, and single-segment designs consciously
+_To be completed._
 
----
+## Required Exercises
 
-> **Not yet written.** Exercises will be added when this chapter is reached.
+- [ ] Follow PA → LS → BN → LOAD → SAVE → SV
+- [ ] Explain why BN and SV are different
+- [ ] Demonstrate what SAVE actually captures
+
+## Advanced Exercises
+
+- [ ] Decode BN records
+- [ ] Decode SV structures
+
+## Notes
+
+_Chapter notes, rationale, and learning points to be added._

@@ -1,11 +1,19 @@
-# Chapter 10 — Indirect Addressing and Control Flow Pitfalls
+# Chapter 9 - Loader and Multi-Module Programs
+
+## Status
+
+- [ ] Not Started
 
 ## Goals
 
-- Understand the most common PDP-8 control-flow bugs
-- Know precisely when IF vs. DF applies
-- Anticipate and avoid CIF timing hazards
+_To be completed._
 
----
+## Required Exercises
 
-> **Not yet written.** Exercises will be added when this chapter is reached.
+- [ ] Split a program into modules
+- [ ] Shared data region
+- [ ] Diagnose and repair loader conflicts
+
+## Notes
+
+_Chapter notes, rationale, and learning points to be added._

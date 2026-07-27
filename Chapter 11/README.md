@@ -1,11 +1,19 @@
-# Chapter 12 — File I/O and Buffers
+# Chapter 11 - OS/8 Programming Model and Interfaces
+
+## Status
+
+- [ ] Not Started
 
 ## Goals
 
-- Read and write files via OS/8
-- Manage buffers correctly in memory
-- Understand binary vs. ASCII data handling
+_To be completed._
 
----
+## Required Exercises
 
-> **Not yet written.** Exercises will be added when this chapter is reached.
+- [ ] Character-oriented interfaces (ICHR/OCHR)
+- [ ] File-oriented interfaces (IOPEN/OOPEN)
+- [ ] SYS:, DSK:, and device assignment
+
+## Notes
+
+_Chapter notes, rationale, and learning points to be added._

@@ -1,11 +1,19 @@
-# Chapter 17 — Program Architecture
+# Chapter 16 - Performance and Design Tradeoffs
+
+## Status
+
+- [ ] Not Started
 
 ## Goals
 
-- Apply fields, overlays, and subroutine conventions coherently
-- Separate code, data, and OS interface regions
-- Design maintainable PDP-8 programs
+_To be completed._
 
----
+## Required Exercises
 
-> **Not yet written.** Exercises will be added when this chapter is reached.
+- [ ] Compare macro, inline, and JMS implementations
+- [ ] Compare single-field and multi-field designs
+- [ ] Redesign a page-overflowing program
+
+## Notes
+
+_Chapter notes, rationale, and learning points to be added._

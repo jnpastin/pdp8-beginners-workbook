@@ -1,11 +1,19 @@
-# Chapter 8 — Loader, Multi-File Programs, and Chaining
+# Chapter 8 - Command Decoder and Program Invocation
+
+## Status
+
+- [ ] Not Started
 
 ## Goals
 
-- Build programs from multiple source files
-- Understand how the loader merges modules
-- Coordinate symbols across files
+_To be completed._
 
----
+## Required Exercises
 
-> **Not yet written.** Exercises will be added when this chapter is reached.
+- [ ] Compare direct invocation, R, and CCL
+- [ ] Trace command expansion
+- [ ] Build a workflow using command procedures
+
+## Notes
+
+_Chapter notes, rationale, and learning points to be added._

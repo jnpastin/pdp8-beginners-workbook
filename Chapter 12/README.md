@@ -1,11 +1,23 @@
-# Chapter 13 — Overlays (Memory Optimization)
+# Chapter 12 - USR Calls
+
+## Status
+
+- [ ] Not Started
 
 ## Goals
 
-- Structure programs larger than one field
-- Load code segments on demand via USR
-- Understand the performance cost of overlays
+_To be completed._
 
----
+## Required Exercises
 
-> **Not yet written.** Exercises will be added when this chapter is reached.
+- [ ] Minimal USR call
+- [ ] FETCH or INQUIRE
+- [ ] CHAIN
+
+## Advanced Exercises
+
+- [ ] Field-safe USR wrapper
+
+## Notes
+
+_Chapter notes, rationale, and learning points to be added._

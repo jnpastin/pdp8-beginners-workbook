@@ -1,11 +1,19 @@
-# Chapter 15 — File System and Storage Concepts
+# Chapter 14 - File System, Devices, and Handlers
+
+## Status
+
+- [ ] Not Started
 
 ## Goals
 
-- Reason about OS/8 disk behavior and file placement
-- Understand directory structure and block allocation
-- Work confidently with logical devices
+_To be completed._
 
----
+## Required Exercises
 
-> **Not yet written.** Exercises will be added when this chapter is reached.
+- [ ] Analyze directories and allocation
+- [ ] SYS:, DSK:, and device assignment
+- [ ] Trace a file request through handlers
+
+## Notes
+
+_Chapter notes, rationale, and learning points to be added._

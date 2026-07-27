@@ -1,19 +1,24 @@
-# Chapter 19 — Capstone: Integrated Program
+# Chapter 18 - Debugging and Failure Analysis
 
-## Goal
+## Status
 
-Demonstrate full system-level competency by building a program that exercises everything learned.
+- [ ] Not Started
 
-## Requirements
+## Goals
 
-The program must:
-- Use multiple source files (Chapter 9)
-- Use DF or CIF correctly for extended memory (Chapters 5, 10)
-- Call OS/8 via USR for at least one operation (Chapter 11)
-- Perform file I/O with proper buffer management (Chapter 12)
-- Exit correctly and unconditionally (Chapter 5)
-- Demonstrate structured design with a documented memory layout (Chapter 17)
+_To be completed._
 
----
+## Required Exercises
 
-> **Not yet written.** To be completed after Chapters 1–18 are done.
+- [ ] Diagnose a bad indirect jump
+- [ ] Diagnose a bad OS/8 return
+- [ ] Diagnose a program using listing analysis only
+
+## Advanced Exercises
+
+- [ ] ODT debugging
+- [ ] Reverse-engineer an unfamiliar routine
+
+## Notes
+
+_Chapter notes, rationale, and learning points to be added._

@@ -1,4 +1,4 @@
-# Chapter 13 - File I/O and Buffers
+# Chapter 19 - Capstone: Integrated Program
 
 ## Status
 
@@ -10,13 +10,9 @@ _To be completed._
 
 ## Required Exercises
 
-- [ ] Read a file
-- [ ] Write a file
-- [ ] Process a file
-
-## Advanced Exercises
-
-- [ ] Fixed-length record processing
+- [ ] Design the program
+- [ ] Implement the program
+- [ ] Test, debug, and document the program
 
 ## Notes
 
