@@ -1,123 +1,69 @@
 # PDP-8 Programming Workbook
 
-A structured, progressive workbook for learning to write real PDP-8 programs in PAL8 assembly, from first principles through practical OS/8 application development.
+A structured, progressive workbook for learning to write real PDP-8 programs in PAL8 assembly, from first principles through practical OS/8 programming.
 
 Built around a PiDP-8/I running OS/8.
 
----
-
 ## Goal
 
-The objective of this workbook is:
+Have enough practical knowledge to be a reasonably strong PDP-8 programmer, both bare metal and within OS/8.
 
-> Have enough practical knowledge to be a reasonably strong PDP-8 programmer, both bare metal and within OS/8.
+## Structure
 
-Upon completion, the student should be able to:
+Each chapter directory contains:
 
-- Write and debug non-trivial PDP-8 assembly programs
-- Understand AC, Link, pages, fields, and memory layout
-- Use JMS and subroutine conventions correctly
-- Work confidently with IF, DF, CIF, and CDF
-- Use direct device I/O through IOT instructions
-- Use PAL8, CREF, PIP, FUTIL, SUBMIT, and related OS/8 tooling
-- Build and maintain multi-module programs
-- Use OS/8 runtime interfaces and USR services
-- Read and write files under OS/8
-- Diagnose control-flow, field, and OS/8 return failures
-- Design maintainable PDP-8 software with documented architecture
-
----
-
-## Repository Structure
-
-Each chapter contains:
-
-- `README.md`
-- `EXn.PA`
-- `EXn.LS`
-- Additional notes, dumps, and supporting material where appropriate
+- `README.md` - goals, concepts, exercise descriptions, implementation rationale, and key learning points.
+- `EXn.PA` - PAL8 source files where present.
+- `EXn.LS` - assembler listing files where present.
+- Additional notes, dumps, and supporting material where appropriate.
 
 Top-level files:
 
-- `Workbook.md` — overall workbook plan
-- `Style_and_Conventions.md` — coding, review, and documentation standards
+- [Workbook Plan](WoorkBook.md) - full exercise plan, concepts, progress tracking, and appendices.
+- [Style and Conventions](Style_and_Conventions.md) - coding, review, and documentation standards.
 
----
-
-## Progress
+## Chapters
 
 | Chapter | Topic | Status |
-|----------|----------|----------|
-| 1 | Core PDP-8 Mental Model | ✅ Complete |
-| 2 | Control Flow and Subroutines | ✅ Complete |
-| 3 | Rotates, Shifts, and Bit Logic | ✅ Complete |
-| 4 | Multi-Word Arithmetic | ✅ Complete |
-| 5 | OS/8 and Extended Memory | ✅ Complete |
-| 6 | Direct Device I/O | ✅ Complete |
-| 7 | OS/8 Tools and Development Workflow | 🔲 Not Started |
-| 8 | Command Decoder and Program Invocation | 🔲 Not Started |
-| 9 | Loader and Multi-Module Programs | 🔲 Not Started |
-| 10 | PAL8 Advanced Source Techniques | 🔲 Not Started |
-| 11 | OS/8 Programming Model and Interfaces | 🔲 Not Started |
-| 12 | USR Calls | 🔲 Not Started |
-| 13 | File I/O and Buffers | 🔲 Not Started |
-| 14 | File System, Devices, and Handlers | 🔲 Not Started |
-| 15 | OS/8 Program Artifacts and Internals | 🔲 Not Started |
-| 16 | Performance and Design Tradeoffs | 🔲 Not Started |
-| 17 | Program Architecture | 🔲 Not Started |
-| 18 | Debugging and Failure Analysis | 🔲 Not Started |
-| 19 | Capstone: Integrated Program | 🔲 Not Started |
-
----
+|---:|---|---|
+| 1 | [Core PDP-8 Mental Model](Chapter%201/README.md) | ✅ Complete |
+| 2 | [Control Flow and Subroutines](Chapter%202/README.md) | ✅ Complete |
+| 3 | [Rotates, Shifts, and Bit Logic](Chapter%203/README.md) | ✅ Complete |
+| 4 | [Multi-Word Arithmetic](Chapter%204/README.md) | ✅ Complete |
+| 5 | [OS/8 and Extended Memory](Chapter%205/README.md) | ✅ Complete |
+| 6 | [I/O Programming: TTY, PTR, PTP](Chapter%206/README.md) | ✅ Complete |
+| 7 | [OS/8 Tools and Development Workflow](Chapter%207/README.md) | 🔲 Not Started |
+| 8 | [Command Decoder and Program Invocation](Chapter%208/README.md) | 🔲 Not Started |
+| 9 | [Loader and Multi-Module Programs](Chapter%209/README.md) | 🔲 Not Started |
+| 10 | [PAL8 Advanced Source Techniques](Chapter%2010/README.md) | 🔲 Not Started |
+| 11 | [OS/8 Programming Model and Interfaces](Chapter%2011/README.md) | 🔲 Not Started |
+| 12 | [USR Calls](Chapter%2012/README.md) | 🔲 Not Started |
+| 13 | [File I/O and Buffers](Chapter%2013/README.md) | 🔲 Not Started |
+| 14 | [File System, Devices, and Handlers](Chapter%2014/README.md) | 🔲 Not Started |
+| 15 | [OS/8 Program Artifacts and Internals](Chapter%2015/README.md) | 🔲 Not Started |
+| 16 | [Performance and Design Tradeoffs](Chapter%2016/README.md) | 🔲 Not Started |
+| 17 | [Program Architecture](Chapter%2017/README.md) | 🔲 Not Started |
+| 18 | [Debugging and Failure Analysis](Chapter%2018/README.md) | 🔲 Not Started |
+| 19 | [Capstone: Integrated Program](Chapter%2019/README.md) | 🔲 Not Started |
 
 ## Learning Path
 
-### Phase 1 — Bare Machine Programming
+### Phase 1 - Bare Machine Programming
 
-Chapters 1–4
+Chapters 1 through 4 establish AC, Link, memory, instruction sequencing, subroutines, bit operations, and multi-word arithmetic.
 
-- PDP-8 architecture
-- Control flow
-- Subroutines
-- Arithmetic
-- Bit manipulation
+### Phase 2 - Hardware and OS Boundary
 
-### Phase 2 — Hardware and OS Boundary
+Chapters 5 and 6 introduce OS/8-safe execution, extended memory, fields, and direct device I/O.
 
-Chapters 5–6
+### Phase 3 - Practical OS/8 Programming
 
-- Extended memory
-- Fields
-- OS/8 execution conventions
-- Direct I/O
+Chapters 7 through 14 cover OS/8 workflow, command invocation, multi-module development, macros, runtime interfaces, USR calls, file I/O, devices, and handlers.
 
-### Phase 3 — Practical OS/8 Programming
+### Phase 4 - Design and Mastery
 
-Chapters 7–14
-
-- Development workflow
-- Command invocation
-- Multi-module development
-- PAL8 macros
-- OS/8 runtime interfaces
-- USR
-- File I/O
-- Devices and handlers
-
-### Phase 4 — Design and Mastery
-
-Chapters 15–19
-
-- Program artifacts
-- Performance
-- Architecture
-- Debugging
-- Capstone
-
----
+Chapters 15 through 19 cover program artifacts, performance tradeoffs, architecture, debugging, and the integrated capstone.
 
 ## Philosophy
 
-The PDP-8 rewards clarity, discipline, and precision.
-
-This workbook focuses on practical competency rather than historical trivia or operating-system implementation details. Deep dives are included where they provide foundational understanding that improves future programming decisions.
+The workbook focuses on practical competency. Deep dives are retained where they provide foundational value for future programming decisions.
