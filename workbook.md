@@ -32,9 +32,9 @@ Advanced internals are included only where they provide significant value.
 
 ## Exercises
 
-- [x] Trace a simple add/store program by hand
-- [x] Count from 1–10 and accumulate a sum
-- [x] Rewrite the loop using auto-index registers
+- ✅ Trace a simple add/store program by hand
+- ✅ Count from 1–10 and accumulate a sum
+- ✅ Rewrite the loop using auto-index registers
 
 ---
 
@@ -48,9 +48,9 @@ Advanced internals are included only where they provide significant value.
 
 ## Exercises
 
-- [x] Absolute-value subroutine
-- [x] Compare two values
-- [x] Nested subroutines and state-saving bug fix
+- ✅ Absolute-value subroutine
+- ✅ Compare two values
+- ✅ Nested subroutines and state-saving bug fix
 
 ---
 
@@ -64,9 +64,9 @@ Advanced internals are included only where they provide significant value.
 
 ## Exercises
 
-- [x] Count bits set in a word
-- [x] Multiply by 10 without EAE
-- [x] Arithmetic right shift
+- ✅ Count bits set in a word
+- ✅ Multiply by 10 without EAE
+- ✅ Arithmetic right shift
 
 ---
 
@@ -80,9 +80,9 @@ Advanced internals are included only where they provide significant value.
 
 ## Exercises
 
-- [x] 24-bit add/subtract
-- [x] Variable-length accumulation
-- [x] Multi-word comparison
+- ✅ 24-bit add/subtract
+- ✅ Variable-length accumulation
+- ✅ Multi-word comparison
 
 ---
 
@@ -96,9 +96,9 @@ Advanced internals are included only where they provide significant value.
 
 ## Exercises
 
-- [x] OS/8-safe exit
-- [x] Field-safe subroutine
-- [x] EAE detection with dual-path arithmetic
+- ✅ OS/8-safe exit
+- ✅ Field-safe subroutine
+- ✅ EAE detection with dual-path arithmetic
 
 ---
 
@@ -112,13 +112,13 @@ Advanced internals are included only where they provide significant value.
 
 ## Exercises
 
-- [x] Character output
-- [x] Character input with echo
-- [x] Line-buffered input
+- ✅ Character output
+- ✅ Character input with echo
+- ✅ Line-buffered input
 
 ## Advanced
 
-- [x] PTR/PTP transfer utility
+- ✅ PTR/PTP transfer utility
 
 ---
 
